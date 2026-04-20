@@ -1,3 +1,32 @@
+# Estágio de build do módulo da nvidia numa imagem separada
+# Para evitar poluir a imagem final com os pacotes de desenvolvimento do kernel e ferramentas de construção
+FROM quay.io/fedora/fedora-bootc:43 AS builder
+
+RUN <<ELL
+set -e
+
+echo "Atualiza o kernel da imagem" 
+dnf5 upgrade -y 'kernel*' --refresh 
+
+echo "Instala o kernel-devel necessário para nvidia módulo"
+dnf5 -y install kernel-devel --refresh
+
+echo "Identifica a versão do kernel instalada no container, para instalar kernel-devel para Nvidia"
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
+
+dnf5 install -y \
+    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+echo "Instala o driver da nvidia"
+dnf5 install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
+    kernel-devel kernel-headers --refresh
+
+echo "Build nvidia kernel module para o kernel: $KERNEL_VERSION"
+akmods --force --kernels "$KERNEL_VERSION"
+ELL
+
+# Imagem principal
 FROM quay.io/fedora/fedora-bootc:43
 
 RUN mkdir -p /var/roothome /data /var/home
@@ -24,7 +53,8 @@ dnf5 install 'dnf5-command(config-manager)' -y
 
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
-
+# Suporte a hardware
+dnf5 -y install kernel-modules-extra linux-firmware --refresh
 # Instala um gnome completo
 dnf5 install @gnome-desktop -y
 
@@ -47,17 +77,12 @@ EOF
 RUN dnf5 install btrfs-assistant fastfetch libgda libgda-sqlite \
 podman-compose uld xpadneo -y
 	
-# Instalação do driver e dependências de compilação
-# O akmod disparará a compilação do módulo durante o 'build' da imagem
-RUN dnf5 install -y \
-    akmod-nvidia \
-    xorg-x11-drv-nvidia-cuda \
-    kernel-devel \
-    kernel-headers 
-
-# Garante que o akmods compile o driver antes de finalizar a imagem
-RUN kversion=$(rpm -q kernel --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | head -n 1) && \
-    akmods --force --kernel "$kversion"
+# Driver da NVIDIA
+COPY 10-nvidia-args.toml
+echo "instalar o pacote do nvidia-kmod-common e nvidia-driver-cuda necessários, mas sem toda as dependências para construção do módulo"
+dnf5 install -y xorg-x11-drv-nvidia-cuda --refresh
+#Instala o módulo da imagem do builder
+dnf5 -y install ./kmod-nvidia-*.rpm
 
 # Limpa o DNF depois das transações    
 RUN dnf clean all
@@ -69,3 +94,5 @@ systemctl enable spice-vdagentd.service
 systemctl mask systemd-remount-fs.service
 ELF
 
+# Verificar por erros na imagem 
+RUN bootc container lint
