@@ -14,15 +14,18 @@ dnf5 -y install kernel-devel --refresh
 echo "Identifica a versão do kernel instalada no container, para instalar kernel-devel para Nvidia"
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 
+dnf5 install 'dnf5-command(copr)' -y
+dnf5 copr enable sentry/xpadneo -y
+
 dnf5 install -y \
     https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
-echo "Instala o driver da nvidia"
+#
 dnf5 install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
-    kernel-devel kernel-headers --refresh
-
-echo "Build nvidia kernel module para o kernel: $KERNEL_VERSION"
+    kernel-devel kernel-headers xpadneo --refresh
+ 
+# Cria os módulos/drivers
 akmods --force --kernels "$KERNEL_VERSION"
 ELL
 
@@ -51,7 +54,7 @@ dnf5 install -y \
 dnf5 install 'dnf5-command(copr)' -y
 dnf5 install 'dnf5-command(config-manager)' -y
 
-dnf5 copr enable sentry/xpadneo -y
+
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
 # Suporte a hardware
 dnf5 -y install kernel-modules-extra linux-firmware --refresh
@@ -75,17 +78,21 @@ EOF
 
 # Instala pacotes extras para funcionamento correto do sistema
 RUN dnf5 install btrfs-assistant fastfetch libgda libgda-sqlite \
-podman-compose uld xpadneo -y
+podman-compose uld -y
 	
-# Driver da NVIDIA
+# Driver da NVIDIA e controle de Xbox
 COPY 10-nvidia-args.toml
-echo "instalar o pacote do nvidia-kmod-common e nvidia-driver-cuda necessários, mas sem toda as dependências para construção do módulo"
-dnf5 install -y xorg-x11-drv-nvidia-cuda --refresh
+RUN <<EOF dnf5 install -y xorg-x11-drv-nvidia-cuda --refresh
 #Instala o módulo da imagem do builder
-dnf5 -y install ./kmod-nvidia-*.rpm
-
+dnf5 -y install ./kmod-nvidia-*.rpm ./kmod-xpadneo-*.rpm
+mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
+EOF
 # Limpa o DNF depois das transações    
-RUN dnf clean all
+dnf clean all
+rm -rfv /var/cache/* \
+        /var/lib/* \
+        /var/log/* \
+        /var/tmp/* 
 
 # Habilita alguns serviços
 RUN <<ELF
