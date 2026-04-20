@@ -19,10 +19,6 @@ dnf5 install 'dnf5-command(config-manager)' -y
 dnf5 install 'dnf5-command(copr)' -y
 dnf5 copr enable sentry/xpadneo -y
 
-<<<<<<< HEAD
-dnf5 install -y \
-kernel-modules-extra humbnailer compsize usbutils distrobox \
-=======
 # Instala um gnome completo
 dnf5 install @gnome-desktop -y
 
@@ -33,7 +29,6 @@ dnf5 install gnome-software --setopt=install_weak_deps=False -y
 # instala alguns pacotes para ter um funcionamento básico do sistema
 dnf5 -y install kernel-modules-extra @networkmanager-submodules @multimedia xdg-utils \
 evince-thumbnailer ffmpegthumbnailer compsize usbutils distrobox \
->>>>>>> c25c3d3 (Correção pequena)
 toolbox nautilus micro ptyxis langpacks-core-pt_BR \
 flatpak wget tree git glycin-thumbnailer langpacks-fonts-pt podman \
 langpacks-pt_BR bash-color-prompt tuned tuned-ppd fastfetch zram spice-vdagent \
@@ -49,7 +44,7 @@ podman-compose uld -y
 # Driver da NVIDIA e controle de Xbox
 RUN <<EOF dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia xpadneo
 # Criar o diretório se não existir e definir os argumentos
-mkdir -p /usr/lib/bootc/kargs.d/ && \
+mkdir -p /usr/lib/bootc/kargs.d/
 echo "rhgb quiet" > /usr/lib/bootc/kargs.d/99-plymouth.conf
 echo "rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core" > /usr/lib/bootc/kargs.d/98-nvidia.conf
 kversion=$(rpm -q kernel --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | head -n 1) && \
