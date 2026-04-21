@@ -30,6 +30,7 @@ dnf5 install gnome-software --setopt=install_weak_deps=False -y
 
 # instala alguns pacotes para ter um funcionamento básico do sistema
 tr '\n' ' ' < pacotes_rpm | xargs dnf5 install -y
+EOF
 
 # Drivers via módulo ou firmware
 RUN dnf5 install -y alsa-firmware alsa-sof-firmware \
@@ -46,9 +47,9 @@ RUN systemd-sysusers && grpconv && pwconv
 
 # Parâmetros de boot
 COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
+
 RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
-plymouth-set-default-theme bgrt
 EOF
  
 # Fase de limpeza
