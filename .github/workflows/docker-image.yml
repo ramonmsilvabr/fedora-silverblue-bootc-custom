@@ -37,6 +37,8 @@ jobs:
           CERTIFICATE_BASE64: ${{ secrets.SECURE_BOOT_CERT }}
           PRIVATEKEY_BASE64: ${{ secrets.SECURE_BOOT_KEY }}
         run: |
+            echo -n "$CERTIFICATE_BASE64" | wc -c
+            echo -n "$PRIVATEKEY_BASE64" | wc -c
             mkdir -p .anchor
             echo -n "$CERTIFICATE_BASE64" | base64 -di > .anchor/akmods.der
             echo -n "$PRIVATEKEY_BASE64" | base64 -di > .anchor/akmods.priv
