@@ -2,6 +2,8 @@
 FROM quay.io/fedora/fedora-bootc:44
 
 RUN mkdir -p /var/roothome /data /var/home
+# Copia lista de pacotes
+COPY pacotes_rpm ./
 
 RUN <<EOF
 # ajusta os links para opt e /usr/local ser gravável
@@ -50,6 +52,7 @@ COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
 
 RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
+plymouth-set-default-theme bgrt
 EOF
  
 # Fase de limpeza
