@@ -44,12 +44,8 @@ RUN dnf5 install btrfs-assistant fastfetch libgda libgda-sqlite \
 podman-compose uld -y
 	
 # Driver da NVIDIA e controle de Xbox
-RUN <<EOF dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia xpadneo
-touch /usr/lib/bootc/kargs.d/99-plymouth.conf
-touch /usr/lib/bootc/kargs.d/98-nvidia.conf
-echo "rhgb quiet" > /usr/lib/bootc/kargs.d/99-plymouth.conf
-echo "rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core" > /usr/lib/bootc/kargs.d/98-nvidia.conf
-EOF
+RUN dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia xpadneo
+
 # Constrói os módulos
 RUN kversion=$(rpm -q kernel --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | head -n 1) && \
     akmods --force --kernel "$kversion"
@@ -61,6 +57,12 @@ rm -rfv /var/cache/* \
         /var/lib/* \
         /var/log/* \
         /var/tmp/* 
+EOF
+
+# Parâmetros de boot
+COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
+RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
+mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
 EOF
 
 # Habilita alguns serviços
