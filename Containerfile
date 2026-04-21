@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-bootc:44 as builder
+FROM quay.io/fedora/fedora-bootc:44 AS builder
 
 COPY .anchor/secure_boot.key /tmp/secure_boot.key
 COPY .anchor/secure_boot.der /etc/pki/akmods/certs/public_key.der
@@ -18,7 +18,7 @@ dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-
 
 dnf5 install -y nvidia-driver nvidia-open nvidia-driver-cuda xpadneo --refresh
 akmods --force --kernels "$KERNEL_VERSION"
-/usr/src/kernels/$(uname -r)/scripts/sign-file sha256 /tmp/secure_boot.key /etc/pki/akmods/certs/public_key.der \
+/usr/src/kernels/$KERNEL_VERSION/scripts/sign-file sha256 /tmp/secure_boot.key /etc/pki/akmods/certs/public_key.der \
     $(find /lib/modules/ -name "*.ko")
 rm /tmp/secure_boot.key
 ELL
