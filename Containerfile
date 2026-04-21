@@ -10,7 +10,6 @@ RUN <<ELL
 set -e
 # Atualiza Kernel apenas
 chmod 444 /etc/pki/akmods/certs/akmods.der
-openssl pkcs8 -in /etc/pki/akmods/private/akmods.key -topk8 -nocrypt -out /etc/pki/akmods/private/akmods.key
 chmod 400 /etc/pki/akmods/private/akmods.key
 ln -s /etc/pki/akmods/certs/akmods.der /etc/pki/akmods/certs/public_key.der
 ln -s /etc/pki/akmods/private/akmods.key /etc/pki/akmods/private/private_key.priv 
