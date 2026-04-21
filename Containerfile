@@ -33,7 +33,7 @@ tr '\n' ' ' < pacotes_rpm | xargs dnf5 install -y
 EOF
 
 # Drivers via módulo ou firmware
-RUN dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia-open \
+RUN dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia \
 xpadneo \
 uld 
 
