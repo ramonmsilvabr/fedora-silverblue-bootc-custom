@@ -29,14 +29,14 @@ dnf5 install @gnome-desktop -y --exclude=gnome-software
 dnf5 install gnome-software --setopt=install_weak_deps=False -y
 
 # instala alguns pacotes para ter um funcionamento básico do sistema
-dnf5 -y install uld kernel-modules-extra @networkmanager-submodules @multimedia xdg-utils \
+dnf5 -y install alsa-firmware alsa-sof-firmwareuld kernel-modules-extra @networkmanager-submodules @multimedia xdg-utils \
 evince-thumbnailer ffmpegthumbnailer compsize usbutils distrobox \
 toolbox nautilus micro ptyxis langpacks-core-pt_BR \
 flatpak wget tree git glycin-thumbnailer langpacks-fonts-pt podman \
 langpacks-pt_BR bash-color-prompt tuned tuned-ppd fastfetch zram spice-vdagent \
 plymouth plymouth-core-libs plymouth-graphics-libs plymouth-plugin-label \
 plymouth-plugin-two-step plymouth-scripts plymouth-system-theme \
-plymouth-theme-spinner
+plymouth-theme-spinner 
 EOF
 
 # Instala pacotes extras para funcionamento correto do sistema
