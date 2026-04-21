@@ -40,8 +40,8 @@ jobs:
             echo -n "$CERTIFICATE_BASE64" | wc -c
             echo -n "$PRIVATEKEY_BASE64" | wc -c
             mkdir -p .anchor
-            echo -n "$CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -di > .anchor/akmods.der
-            echo -n "$PRIVATEKEY_BASE64" | tr -d '[:space:]' | base64 -di > .anchor/akmods.priv
+            echo -n "$CERTIFICATE_BASE64" | sed 's/[^A-Za-z0-9+/=]//g' | base64 -di > .anchor/akmods.der
+            echo -n "$PRIVATEKEY_BASE64" | sed 's/[^A-Za-z0-9+/=]//g' | base64 -di > .anchor/akmods.priv
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
