@@ -31,7 +31,7 @@ EOF
 
 # Drivers via módulo ou firmware
 RUN dnf5 install -y kernel-devel kernel-headers \
-nvidia-driver-open akmod-nvidia nvidia-driver-cuda \
+nvidia-open akmod-nvidia nvidia-driver-cuda \
 xpadneo \
 uld
 
