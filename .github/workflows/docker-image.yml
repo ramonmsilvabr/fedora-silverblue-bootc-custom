@@ -36,7 +36,7 @@ jobs:
         run: |
             mkdir -p .anchor
             echo "${{ secrets.SECURE_BOOT_KEY }}" | base64 --decode > .anchor/secure_boot.key
-            echo "${{ secrets.SECURE_BOOT_CERT }}"| base64 --decode > .anchor/secure_boot.der
+            echo "${{ secrets.SECURE_BOOT_CERT }}" | base64 --decode > .anchor/secure_boot.der
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
