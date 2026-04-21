@@ -21,8 +21,8 @@ akmods --force --kernels "$KERNEL_VERSION"
 find /lib/modules/$KERNEL_VERSION/extra -name "*.ko.xz" | while read module; do   
     unxz "$module"
     /usr/src/kernels/$KERNEL_VERSION/scripts/sign-file sha256 \
-    /path/to/private_key.priv \
-    /path/to/public_key.der \
+    /tmp/secure_boot.key \
+    /etc/pki/akmods/certs/public_key.der \
     "${module%.xz}" 
     xz -f "${module%.xz}"
     rm -rfv "${module%.ko}"
