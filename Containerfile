@@ -1,9 +1,31 @@
+FROM quay.io/fedora/fedora-bootc:44 as builder
+
+RUN <<ELL 
+set -e
+dnf5 upgrade -y 'kernel*' --refresh
+
+dnf5 -y install kernel-devel --refresh
+
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
+
+dnf5 install 'dnf5-command(config-manager)' -y
+dnf5 install 'dnf5-command(copr)' -y
+dnf5 copr enable sentry/xpadneo -y
+dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
+dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+
+dnf5 install -y nvidia-driver nvidia-open nvidia-driver-cuda xpadneo --refresh
+akmods --force --kernels "$KERNEL_VERSION"
+ELL
+
 # Imagem principal
 FROM quay.io/fedora/fedora-silverblue:44
 
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes
 COPY pacotes_rpm ./
+COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
+COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 
 RUN <<EOF
 # ajusta os links para opt e /usr/local ser gravável
@@ -16,30 +38,35 @@ ln -s /var/usrlocal /usr/local
 mv /usr/local_old/* /usr/local/
 rm -rf /usr/local_old
 
+
 # Habilita repos d
 dnf5 install 'dnf5-command(config-manager)' -y
 dnf5 install 'dnf5-command(copr)' -y
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
-# Instala a Gnome-software sem PackageKit
-dnf5 install gnome-software --setopt=install_weak_deps=False -y
 
-# instala alguns pacotes para ter um funcionamento básico do sistema
-tr '\n' ' ' < pacotes_rpm | xargs dnf5 install -y
+# Atualiza imagem
+dnf5 upgrade -y
 EOF
 
 # Drivers via módulo ou firmware
-RUN dnf5 install -y kernel-devel kernel-headers \
-nvidia-open akmod-nvidia nvidia-driver-cuda \
-xpadneo \
-uld
+RUN <<EOF
+set -e 
 
-RUN dnf5 install nvidia-settings nvidia-driver-libs.i686
-# Constrói os módulos
-RUN kversion=$(rpm -q kernel --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}\n' | head -n 1) && \
-    akmods --force --kernel "$kversion"
+dnf5 download nvidia-kmod-common nvidia-driver-cuda
 
+rpm -vi --nodeps nvidia-kmod-common*.rpm
+
+rpm -vi --nodeps nvidia-driver-cuda*.rpm
+
+dnf5 -y install ./kmod-nvidia-*.rpm
+
+dnf5 -y install ./kmod-xpadneo-*.rpm
+
+EOF
+
+RUN tr '\n' ' ' < pacotes_rpm | xargs dnf5 install -y
 # Limpa o systemd users para chegar corretamente
 RUN systemd-sysusers && grpconv && pwconv
 
@@ -48,7 +75,6 @@ COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
 
 RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
-plymouth-set-default-theme bgrt
 EOF
  
 # Fase de limpeza
