@@ -48,9 +48,9 @@ RUN systemd-sysusers && grpconv && pwconv
 COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
 RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
+plymouth-set-default-theme bgrt
 EOF
-# Configurar boot inicial para usar o plymouth
-RUN plymouth-set-default-theme bgrt
+ 
 # Fase de limpeza
 RUN <<EOF    
 rm -rvf pacotes_rpm 
