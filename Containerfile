@@ -39,15 +39,13 @@ mv /usr/local_old/* /usr/local/
 rm -rf /usr/local_old
 
 
-# Habilita repos no DNF e baixa os repositórios do xpadneo, uld e da NVIDIA
-dnf5 install 'dnf5-command(config-manager)' -y
-dnf5 install 'dnf5-command(copr)' -y
+# Baixa os repositórios do xpadneo, uld e da NVIDIA
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 
 # Atualiza imagem depois e todos os repos adicionados
-dnf5 upgrade -y
+dnf5 -y upgrade --refresh
 EOF
 
 # Drivers via módulo ou firmware
@@ -55,11 +53,6 @@ RUN <<EOF
 set -e 
 # Apenas baixa esses dois pacotes
 dnf5 download nvidia-kmod-common nvidia-driver-cuda
-
-# Instala bibliotecas da NVIDIA e drivers da Samsung
-dnf5 -y install libnvidia-cfg libnvidia-gpucomp libnvidia-ml nvidia-driver-cuda-libs \
-nvidia-driver-libs nvidia-gpu-firmware nvidia-modprobe nvidia-persistenced \
-libva-nvidia-driver uld
 
 # Instala ambos sem dependências
 rpm -vi --nodeps nvidia-kmod-common*.rpm

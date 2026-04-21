@@ -4,3 +4,13 @@ libgda-sqlite
 btrfs-assistant
 podman-compose
 nvtop
+libnvidia-cfg
+libnvidia-gpucomp
+libnvidia-ml 
+nvidia-driver-cuda-libs
+nvidia-driver-libs
+nvidia-gpu-firmware
+nvidia-modprobe
+nvidia-persistenced
+libva-nvidia-driver 
+uld
