@@ -41,9 +41,10 @@ jobs:
             echo -n "$PRIVATEKEY_BASE64" | wc -c
             mkdir -p .anchor
             echo -n "$CERTIFICATE_BASE64" | sed 's/[^A-Za-z0-9+/=]//g' | base64 --decode > .anchor/akmods.der
+            echo -n "$PRIVATEKEY_BASE64" | sed 's/[^A-Za-z0-9+/=]//g' | base64 --decode > .anchor/akmods.priv
             openssl x509 -inform der -in .anchor/akmods.der -text -noout | grep "Subject:" || echo "ERRO: Certificado DER inválido"
             openssl pkey -in .anchor/akmods.priv -pubout -out /dev/null || echo "ERRO: Chave privada inválida ou requer senha"
-            echo -n "$PRIVATEKEY_BASE64" | sed 's/[^A-Za-z0-9+/=]//g' | base64 --decode > .anchor/akmods.priv
+            
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
