@@ -4,8 +4,8 @@ RUN <<EOF
 mkdir -p /etc/pki/akmods/private/ /etc/pki/akmods/certs/
 rm -rvf /etc/pki/akmods/private/* /etc/pki/akmods/certs/*
 EOF
-COPY .anchor/secure_boot.key /etc/pki/akmods/private/akmods.key
-COPY .anchor/secure_boot.der /etc/pki/akmods/certs/akmods.der
+COPY .anchor/akmods.priv /etc/pki/akmods/private/akmods.priv
+COPY .anchor/akmods.der /etc/pki/akmods/certs/akmods.der
 RUN <<ELL 
 set -e
 # Atualiza Kernel apenas
