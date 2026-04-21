@@ -7,7 +7,7 @@ set -e
 # Atualiza Kernel apenas
 dnf5 upgrade -y 'kernel*' --refresh
 # Instala ferramentas de desenvolvimento apenas
-dnf5 -y install kernel-devel openssl perl-devel --refresh
+dnf5 -y install kernel-devel openssl perl-devel openssl mokutil keyutils --refresh
 # Variável para ter a versão do kernel atual
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 # Habilita repos no DNF e baixa os repositórios do xpadneo, uld e da NVIDIA
