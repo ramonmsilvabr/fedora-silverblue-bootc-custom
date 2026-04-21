@@ -45,6 +45,8 @@ podman-compose uld -y
 	
 # Driver da NVIDIA e controle de Xbox
 RUN <<EOF dnf5 install -y xorg-x11-drv-nvidia-cuda akmod-nvidia xpadneo
+touch /usr/lib/bootc/kargs.d/99-plymouth.conf
+touch /usr/lib/bootc/kargs.d/98-nvidia.conf
 echo "rhgb quiet" > /usr/lib/bootc/kargs.d/99-plymouth.conf
 echo "rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core" > /usr/lib/bootc/kargs.d/98-nvidia.conf
 EOF
