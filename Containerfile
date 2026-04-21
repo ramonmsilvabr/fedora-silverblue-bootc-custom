@@ -29,7 +29,7 @@ dnf5 install @gnome-desktop -y --exclude=gnome-software
 dnf5 install gnome-software --setopt=install_weak_deps=False -y
 
 # instala alguns pacotes para ter um funcionamento básico do sistema
-dnf5 -y install alsa-firmware alsa-sof-firmwareuld kernel-modules-extra @networkmanager-submodules @multimedia xdg-utils \
+dnf5 -y install alsa-firmware alsa-sof-firmware uld kernel-modules-extra @networkmanager-submodules @multimedia xdg-utils \
 evince-thumbnailer ffmpegthumbnailer compsize usbutils distrobox \
 toolbox nautilus micro ptyxis langpacks-core-pt_BR \
 flatpak wget tree git glycin-thumbnailer langpacks-fonts-pt podman \
