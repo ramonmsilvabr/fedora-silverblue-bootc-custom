@@ -32,7 +32,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Suporte a Secure Boot
+        run: |
+            mkdir -p .anchor
+            echo "${{ secrets.SECURE_BOOT_KEY }}" > .anchor/secure_boot.key
+            echo "${{ secrets.SECURE_BOOT_CERT }}" > .anchor/secure_boot.der
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
