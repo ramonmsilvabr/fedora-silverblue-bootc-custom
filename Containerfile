@@ -18,8 +18,13 @@ dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-
 
 dnf5 install -y nvidia-driver nvidia-open nvidia-driver-cuda xpadneo --refresh
 akmods --force --kernels "$KERNEL_VERSION"
-/usr/src/kernels/$KERNEL_VERSION/scripts/sign-file sha256 /tmp/secure_boot.key /etc/pki/akmods/certs/public_key.der \
-    $(find /lib/modules/ -name "*.ko")
+find "/lib/modules/$KERNEL_VERSION/extra/" -name "*.ko" | while read -r module; do
+    echo "Assinando: $module"
+    /usr/src/kernels/$KERNEL_VERSION/scripts/sign-file sha256 \
+        /tmp/secure_boot.key \
+        /etc/pki/akmods/certs/public_key.der \
+        "$module"
+done
 rm /tmp/secure_boot.key
 ELL
 
