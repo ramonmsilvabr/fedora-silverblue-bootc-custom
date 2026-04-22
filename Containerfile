@@ -13,7 +13,7 @@ dnf5 install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
 # Variável para ter a versão do kernel atual
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 
-echo"Instalando pacotes plugins de COPR e Repositórios"
+echo "Instalando pacotes plugins de COPR e Repositórios"
 dnf5 install -y'dnf5-command(config-manager)' 'dnf5-command(copr)' -y
 
 echo "Adicionando repositórios da NVIDIA e do xpadneo para compilação"
