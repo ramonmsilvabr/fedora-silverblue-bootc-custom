@@ -87,6 +87,7 @@ EOF
 RUN <<EOF    
 rm -rvf pacotes_rpm 
 rm -rvf "kmod-*.rpm"
+rm -rvf .anchor
 dnf5 clean all
 rm -rfv /var/cache/* \
         /var/lib/* \
