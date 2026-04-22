@@ -17,7 +17,7 @@ if [ ! -f "$SIGN_FILE" ]; then
     exit 1
 fi
 
-TARGET_DIR="/usr/lib/modules/$KERNEL_VERSION/extra/"
+TARGET_DIR="/usr/lib/modules/${KERNEL_VERSION}/extra/"
 
 # 2. Busca e Processamento
 # O find busca arquivos que terminam em .ko ou variações compactadas
