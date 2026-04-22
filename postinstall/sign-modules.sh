@@ -56,4 +56,4 @@ find "$TARGET_DIR" -type f \( -name "*.ko" -o -name "*.ko.xz" -o -name "*.ko.zst
 done
 # Limpeza de chaves de criptografia por segurança
 rm -rfv "$PRIV_KEY" "$DER_CERT"
-echo "Processo concluído!"
+echo "Processo concluído! Todos os módulos foram assinados e os arquivos temporários foram removidos."

@@ -95,6 +95,5 @@ rm -rfv /var/cache/* \
         /var/tmp/* 
 EOF
 
-
 # Verificar por erros na imagem 
 RUN bootc container lint
