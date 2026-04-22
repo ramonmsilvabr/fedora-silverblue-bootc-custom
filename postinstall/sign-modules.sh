@@ -6,9 +6,10 @@ DER_CERT="akmods.der"
 
 chmod 444 $DER_CERT
 chmod 400 $PRIV_KEY
+dnf5 -y install kernel-devel 
 # 1. Localizar o utilitário sign-file no Silverblue/Fedora
 # O link 'build' em /lib/modules sempre aponta para os headers do kernel atual
-SIGN_FILE="/usr/lib/modules/$KERNEL_VERSION/build/scripts/sign-file"
+SIGN_FILE="/usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file"
 
 if [ ! -f "$SIGN_FILE" ]; then
     echo "Erro: Utilitário sign-file não encontrado."
@@ -56,4 +57,5 @@ find "$TARGET_DIR" -type f \( -name "*.ko" -o -name "*.ko.xz" -o -name "*.ko.zst
 done
 # Limpeza de chaves de criptografia por segurança
 rm -rfv "$PRIV_KEY" "$DER_CERT"
+dnf5 -y remove kernel-devel 
 echo "Processo concluído! Todos os módulos foram assinados e os arquivos temporários foram removidos."
