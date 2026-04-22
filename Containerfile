@@ -14,11 +14,11 @@ dnf5 install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 
 echo "Instalando pacotes plugins de COPR e Repositórios"
-dnf5 install -y'dnf5-command(config-manager)' 'dnf5-command(copr)' -y
+dnf5 install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 
 echo "Adicionando repositórios da NVIDIA e do xpadneo para compilação"
-dnf5 copr enable sentry/xpadneo -y
-dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+dnf5 copr enable -y sentry/xpadneo
+dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 EOF
 
 RUN <<EOF 
@@ -57,15 +57,15 @@ EOF
 RUN <<EOF
 echo "Baixa os repositórios dos drivers"
 dnf5 copr enable sentry/xpadneo -y
-dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-uld.repo -y
-dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo -y
+dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
+dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 # Remove o gnome-software-rpm-ostree para evitar conflitos de dependências, já que ele não é necessário em uma imagem minimalista
 
 echo "Remove PackageKit e RPM-OSTree da GNOME Software"
-dnf5 -y remove gnome-software-rpm-ostree gnome-software-packagekit
+dnf5 remove -y gnome-software-rpm-ostree gnome-software-packagekit
 
 echo "Atualiza imagem depois e todos os repos adicionados"
-dnf5 -y upgrade --refresh
+dnf5 upgrade -y --refresh
 EOF
 
 # Drivers via módulo ou firmware

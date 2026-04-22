@@ -8,7 +8,7 @@ chmod 444 $DER_CERT
 chmod 400 $PRIV_KEY
 
 echo "Instalando kernel-devel"
-dnf5 -y install kernel-devel 
+dnf5 install -y kernel-devel 
 # 1. Localizar o utilitário sign-file no Silverblue/Fedora
 # O link 'build' em /lib/modules sempre aponta para os headers do kernel atual
 SIGN_FILE="/usr/src/kernels/${KERNEL_VERSION}/scripts/sign-file"
@@ -60,6 +60,6 @@ echo "Limpeza de chaves de criptografia por segurança"
 rm -rfv "$PRIV_KEY" "$DER_CERT"
 
 echo "Removendo Kernel Devel"
-dnf5 -y remove kernel-devel 
+dnf5 remove -y kernel-devel 
 
 echo "Processo concluído! Todos os módulos foram assinados e os arquivos temporários foram removidos."
