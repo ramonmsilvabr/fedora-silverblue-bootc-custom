@@ -1,4 +1,4 @@
-name: Buildar imagem
+name: Default Build
 
 on:
   schedule:
