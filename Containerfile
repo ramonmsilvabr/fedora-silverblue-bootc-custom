@@ -1,8 +1,7 @@
 FROM quay.io/fedora/fedora-bootc:44 AS builder
 
 RUN <<EOF
-mkdir -p /etc/pki/akmods/private/ /etc/pki/akmods/certs/
-rm -rvf /etc/pki/akmods/private/* /etc/pki/akmods/certs/*
+
 EOF
 COPY .anchor/akmods.priv /etc/pki/akmods/private/akmods.priv
 COPY .anchor/akmods.der /etc/pki/akmods/certs/akmods.der
@@ -86,7 +85,13 @@ COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
 RUN <<EOF mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
 EOF
- 
+#Habilitando secure boot
+COPY .anchor/akmods.priv akmods.priv
+COPY .anchor/akmods.der akmods.der
+
+RUN <<EOF
+postinstall/sign-modules.sh
+EOF
 # Fase de limpeza
 RUN <<EOF    
 rm -rvf pacotes_rpm 
@@ -97,12 +102,7 @@ rm -rfv /var/cache/* \
         /var/log/* \
         /var/tmp/* 
 EOF
-# Habilita alguns serviços
-RUN <<ELF
-systemctl enable zram-swap.service
-systemctl enable spice-vdagentd.service
-systemctl mask systemd-remount-fs.service
-ELF
+
 
 # Verificar por erros na imagem 
 RUN bootc container lint
