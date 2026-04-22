@@ -16,8 +16,6 @@ dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-
 # Instala pacotes de desenvolvimento e drivers para compilar os módulos do kernel
 dnf5 install -y nvidia-driver nvidia-open nvidia-driver-cuda xpadneo --refresh
 akmods --force --kernels "$KERNEL_VERSION"
-# Remove a chave privada para não deixar rastros    
-rm /etc/pki/akmods/private/*
 ELL
 
 # Imagem principal
