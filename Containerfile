@@ -41,7 +41,7 @@ FROM quay.io/fedora/fedora-silverblue:44
 
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
-COPY pacotes_rpm ./
+COPY pacotes_rpm* ./
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 
