@@ -62,10 +62,9 @@ echo "Baixa os repositórios dos drivers"
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
-# Remove o gnome-software-rpm-ostree para evitar conflitos de dependências, já que ele não é necessário em uma imagem minimalista
 
-echo "Remove PackageKit e RPM-OSTree da GNOME Software"
-dnf5 remove -y gnome-software-rpm-ostree gnome-software-packagekit PackageKit PackageKit-glib
+echo "Remove pacotes desnecessários"
+tr '\n' ' ' < pacotes_rpm_removidos | xargs dnf5 remove -y
 
 echo "Atualiza imagem depois e todos os repos adicionados"
 dnf5 upgrade -y --refresh
