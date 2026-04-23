@@ -65,7 +65,7 @@ dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedo
 # Remove o gnome-software-rpm-ostree para evitar conflitos de dependências, já que ele não é necessário em uma imagem minimalista
 
 echo "Remove PackageKit e RPM-OSTree da GNOME Software"
-dnf5 remove -y gnome-software-rpm-ostree gnome-software-packagekit
+dnf5 remove -y gnome-software-rpm-ostree gnome-software-packagekit PackageKit PackageKit-glib
 
 echo "Atualiza imagem depois e todos os repos adicionados"
 dnf5 upgrade -y --refresh
