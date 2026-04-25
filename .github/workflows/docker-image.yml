@@ -2,7 +2,7 @@ name: Default Build
 
 on:
   schedule:
-    - cron: '0 18 * * *' # Constrói as 18:00
+    - cron: '0 12 * * *' # Constrói as 18:00
   push:
     branches:
       - master
