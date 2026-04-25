@@ -9,8 +9,7 @@ fastfetch
 gnome-tweaks
 gnome-firmware
 zenity
-intel-media-driver
-nvidia-driver-selinux
+libva-intel-media-driver
 libnvidia-cfg
 libnvidia-gpucomp
 libnvidia-ml 
