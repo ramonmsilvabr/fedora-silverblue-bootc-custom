@@ -39,6 +39,8 @@ EOF
 # Imagem principal
 FROM quay.io/fedora/fedora-silverblue:44
 
+ARG SECUREBOOT_IGNORE=false
+
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY pacotes_rpm* ./
@@ -111,15 +113,19 @@ mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
 EOF
 
 # Etapa de cópia para o Secure Boot
-COPY .anchor/* ./
 COPY postinstall/ /tmp/postinstall/
 
-RUN <<EOF
-set -e
-
-bash /tmp/postinstall/sign-modules.sh
+RUN --mount=type=bind,source=.,target=/context <<EOF
+if [ "$SECUREBOOT_IGNORE" = "false" ]; then
+        set -e
+        mkdir -p /.anchor
+        cp -r /context/.anchor/* /.anchor 2>/dev/null
+        bash /tmp/postinstall/sign-modules.sh
+        echo -e "Suporte a Secure Boot: ON"
+else 
+        echo -e "Suporte a Secure Boot: OFF"; \
+fi
 EOF
-
 # Fase de limpeza
 RUN <<EOF
 
