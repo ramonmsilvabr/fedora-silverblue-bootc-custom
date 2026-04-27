@@ -9,6 +9,7 @@ fastfetch
 gnome-tweaks
 gnome-firmware
 zenity
+rclone
 libnvidia-cfg
 libnvidia-gpucomp
 libnvidia-ml 
