@@ -119,7 +119,7 @@ RUN --mount=type=bind,source=.,target=/context <<EOF
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
         mkdir -p ./.anchor
-        cp -r /context/.anchor/* ./.anchor 2>/dev/null
+        cp -r /context/.anchor/* ./ 2>/dev/null
         bash /tmp/postinstall/sign-modules.sh
         echo -e "Suporte a Secure Boot: ON"
 else 
