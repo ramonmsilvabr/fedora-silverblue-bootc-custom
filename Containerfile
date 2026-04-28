@@ -45,7 +45,7 @@ ARG SECUREBOOT_IGNORE=false
 
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
-COPY pacotes_rpm* ./
+COPY dnf* ./
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 
@@ -68,7 +68,7 @@ dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedo
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 
 echo "Remove pacotes desnecessários"
-tr '\n' ' ' < pacotes_rpm_removidos | xargs dnf5 remove -y
+tr '\n' ' ' < dnf-remove-packages | xargs dnf5 remove -y
 
 echo "Atualiza imagem depois e todos os repos adicionados"
 dnf5 upgrade -y --refresh
@@ -88,12 +88,14 @@ echo "Instala kmods já compilados"
 dnf5 -y install ./kmod-nvidia-*.rpm
 dnf5 -y install ./kmod-xpadneo-*.rpm
 
+rm -rvf nvidia-driver-cuda*.rpm
+rm -rvf nvidia-kmod-common*.rpm
 EOF
 
 RUN <<EOF
 
 echo "Instalando pacotes adicionais e essenciais"
-tr '\n' ' ' < pacotes_rpm | xargs dnf5 install -y
+tr '\n' ' ' < dnf-install-packages | xargs dnf5 install -y
 
 EOF
 
@@ -133,7 +135,7 @@ RUN <<EOF
 
 echo "Removendo resquícios de tudo"
 rm -rvf pacotes_rpm* 
-rm -rvf "kmod-*.rpm"
+rm -rvf kmod-*.rpm
 rm -rvf .anchor
 rm -rvf /tmp/postinstall
 dnf5 clean all
