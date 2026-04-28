@@ -3,13 +3,9 @@ name: Default Build
 on:
   schedule:
     - cron: '0 6 * * *' # Constrói as 6:00
-  release:
-    types: [published]
   push:
     branches: 
       - master
-    tags:
-      - 'v*'
     paths-ignore:
       - '**.md'
   workflow_dispatch: # Permite rodar manualmente
