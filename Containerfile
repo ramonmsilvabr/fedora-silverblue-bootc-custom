@@ -1,5 +1,6 @@
 # Imagem para compilar os módulos de kernel
-FROM quay.io/fedora/fedora-bootc:44 AS builder
+ARG FEDORA_VERSION
+FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 
 RUN <<EOF 
 set -e
@@ -37,7 +38,8 @@ akmods --force --kernels "$KERNEL_VERSION"
 EOF
 
 # Imagem principal
-FROM quay.io/fedora/fedora-silverblue:44
+ARG FEDORA_VERSION
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
 
 ARG SECUREBOOT_IGNORE=false
 
