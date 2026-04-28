@@ -134,7 +134,7 @@ EOF
 RUN <<EOF
 
 echo "Removendo resquícios de tudo"
-rm -rvf pacotes_rpm* 
+rm -rvf dnf* 
 rm -rvf kmod-*.rpm
 rm -rvf .anchor
 rm -rvf /tmp/postinstall
