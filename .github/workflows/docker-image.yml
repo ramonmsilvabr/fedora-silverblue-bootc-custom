@@ -35,6 +35,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Suporte a Secure Boot
         env:
           CERTIFICATE_BASE64: ${{ secrets.SECURE_BOOT_CERT }}
@@ -47,9 +48,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          
           context: .
-          file: ./Containerfile # Ou Dockerfile
+          file: ./Containerfile
           push: true
           build-args: |
             FEDORA_VERSION=${{ env.SELECTED_VERSION }}
