@@ -11,20 +11,18 @@ on:
   workflow_dispatch:
     inputs:
       fedora_version:
-        description: 'Versão do Fedora (para build manual)'
+        description: 'Versão do Fedora Silverblue'
         default: '44'
         required: false
-# Permite rodar manualmente
+
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
   REGISTRY: ghcr.io/${{ github.repository_owner }}
-
 
 jobs:
   build-push:
     runs-on: ubuntu-latest
     env:
-      # Lógica: Se houver input manual, usa ele. Se não (release automático), usa 44.
       SELECTED_VERSION: ${{ github.event.inputs.fedora_version || '44' }}
       DEFAULT_VERSION: '44'
     permissions:
@@ -47,14 +45,10 @@ jobs:
           CERTIFICATE_BASE64: ${{ secrets.SECURE_BOOT_CERT }}
           PRIVATEKEY_BASE64: ${{ secrets.SECURE_BOOT_KEY }}
         run: |
-            echo -n "$CERTIFICATE_BASE64" | wc -c
-            echo -n "$PRIVATEKEY_BASE64" | wc -c
             mkdir -p .anchor
             echo -n "$CERTIFICATE_BASE64" | base64 --decode > .anchor/akmods.der
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/akmods.priv
-            openssl x509 -inform der -in .anchor/akmods.der -text -noout | grep "Subject:" || echo "ERRO: Certificado DER inválido"
-            openssl pkey -in .anchor/akmods.priv -pubout -out /dev/null || echo "ERRO: Chave privada inválida ou requer senha"
-            
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
@@ -65,6 +59,6 @@ jobs:
           build-args: |
             FEDORA_VERSION=${{ env.SELECTED_VERSION }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:f${{ env.SELECTED_VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
             ${{ (env.SELECTED_VERSION == env.DEFAULT_VERSION) && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
