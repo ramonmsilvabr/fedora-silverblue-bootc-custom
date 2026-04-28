@@ -20,7 +20,7 @@ Os módulos da imagem não carregarão em sistemas com Secure Boot on, se precis
 
 ## Clone o repositório e crie um container com a imagem
 
-``
+```
 git clone https://github.com/ramonmsilvabr/fedora-bootc-gnome-nvidia-open.git
 cd fedora-bootc-gnome-nvidia-open.git
 mkdir output
@@ -47,3 +47,4 @@ sudo podman run \
     --type anaconda-iso \
     --rootfs btrfs \
     localhost/fedora-bootc-gnome-nvidia-open
+```
