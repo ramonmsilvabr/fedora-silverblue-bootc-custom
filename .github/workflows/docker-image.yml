@@ -3,11 +3,6 @@ name: Default Build
 on:
   schedule:
     - cron: '0 6 * * *' # Constrói as 6:00
-  push:
-    branches: 
-      - master
-    paths-ignore:
-      - '**.md'
   workflow_dispatch:
     inputs:
       fedora_version:
