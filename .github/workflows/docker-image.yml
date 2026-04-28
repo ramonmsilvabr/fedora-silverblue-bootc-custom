@@ -8,7 +8,13 @@ on:
       - master
     paths-ignore:
       - '**.md'
-  workflow_dispatch: # Permite rodar manualmente
+  workflow_dispatch:
+    inputs:
+      fedora_version:
+        description: 'Versão do Fedora (para build manual)'
+        default: '44'
+        required: false
+# Permite rodar manualmente
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
   REGISTRY: ghcr.io/${{ github.repository_owner }}
@@ -17,6 +23,10 @@ env:
 jobs:
   build-push:
     runs-on: ubuntu-latest
+    env:
+      # Lógica: Se houver input manual, usa ele. Se não (release automático), usa 44.
+      SELECTED_VERSION: ${{ github.event.inputs.fedora_version || '44' }}
+      DEFAULT_VERSION: '44'
     permissions:
       contents: read
       packages: write
@@ -48,10 +58,13 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
+          
           context: .
           file: ./Containerfile # Ou Dockerfile
           push: true
+          build-args: |
+            FEDORA_VERSION=${{ env.SELECTED_VERSION }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:44
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:f${{ env.SELECTED_VERSION }}
+            ${{ (env.SELECTED_VERSION == env.DEFAULT_VERSION) && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
