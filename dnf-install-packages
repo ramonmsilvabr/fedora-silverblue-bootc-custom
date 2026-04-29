@@ -10,6 +10,7 @@ gnome-tweaks
 gnome-firmware
 zenity
 rclone
+glfw
 libnvidia-cfg
 libnvidia-gpucomp
 libnvidia-ml 
