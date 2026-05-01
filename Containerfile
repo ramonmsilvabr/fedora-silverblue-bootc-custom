@@ -1,6 +1,6 @@
 # Imagem para compilar os módulos de kernel
 ARG FEDORA_VERSION
-FROM quay.io/fedora/fedora:${FEDORA_VERSION} AS builder
+FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 
 RUN <<EOF 
 set -e
