@@ -66,6 +66,8 @@ echo "Baixa os repositórios dos drivers"
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+dnf5 config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
+sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
 
 echo "Remove pacotes desnecessários"
 tr '\n' ' ' < dnf-remove-packages | xargs dnf5 remove -y

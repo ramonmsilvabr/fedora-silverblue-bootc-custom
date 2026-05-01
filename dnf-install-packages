@@ -21,4 +21,8 @@ nvidia-persistenced
 libva-nvidia-driver
 nvidia-settings
 nvidia-driver-selinux 
+nvidia-container-toolkit
+nvidia-container-toolkit-base
+libnvidia-container-tools
+libnvidia-container1
 uld
