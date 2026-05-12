@@ -17,8 +17,9 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 echo "Instalando pacotes plugins de COPR e Repositórios"
 dnf5 install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 
-echo "Adicionando repositórios do xpadneo para compilação"
+echo "Adicionando repositórios da NVIDIA e do xpadneo para compilação"
 dnf5 copr enable -y sentry/xpadneo
+dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 EOF
 
 RUN <<EOF 
@@ -28,7 +29,8 @@ set -e
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 
 echo "Instalando drivers e ferramentas de compilação dos módulos"
-dnf5 install -y xpadneo --refresh
+dnf5 install -y nvidia-driver nvidia-open nvidia-driver-cuda \
+xpadneo --refresh
 
 echo "Compilando os módulos para o kernel atual"
 akmods --force --kernels "$KERNEL_VERSION"
@@ -44,6 +46,7 @@ ARG SECUREBOOT_IGNORE=false
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY dnf* ./
+COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 
 RUN <<EOF
@@ -62,6 +65,9 @@ RUN <<EOF
 echo "Baixa os repositórios dos drivers"
 dnf5 copr enable sentry/xpadneo -y
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
+dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+dnf5 config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
+sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
 
 echo "Remove pacotes desnecessários"
 tr '\n' ' ' < dnf-remove-packages | xargs dnf5 remove -y
@@ -73,8 +79,19 @@ EOF
 # Drivers via módulo ou firmware
 RUN <<EOF
 
+echo "Baixnado pacotes para o driver da NVIDIA"
+dnf5 download nvidia-kmod-common nvidia-driver-cuda
+
+echo "Instala pacotes sem puxar dependências para evitar conflitos"
+rpm -vi --nodeps nvidia-kmod-common*.rpm
+rpm -vi --nodeps nvidia-driver-cuda*.rpm
+
 echo "Instala kmods já compilados"
+dnf5 -y install ./kmod-nvidia-*.rpm
 dnf5 -y install ./kmod-xpadneo-*.rpm
+
+rm -rvf nvidia-driver-cuda*.rpm
+rm -rvf nvidia-kmod-common*.rpm
 EOF
 
 RUN <<EOF
@@ -91,11 +108,12 @@ systemd-sysusers && grpconv && pwconv
 EOF
 
 # Etapa de cópia para os parâmetros de boot
-COPY 11-rhgb-quiet-args.toml ./
+COPY 10-nvidia-args.toml 11-rhgb-quiet-args.toml ./
 
 RUN <<EOF 
 
 echo "Adicionando parâmetros de boot"
+mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
 
 EOF

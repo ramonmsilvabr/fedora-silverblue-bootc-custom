@@ -3,6 +3,7 @@ libgda
 libgda-sqlite
 btrfs-assistant
 podman-compose
+nvtop
 btop
 fastfetch
 gnome-tweaks
@@ -10,4 +11,18 @@ gnome-firmware
 zenity
 rclone
 glfw
+libnvidia-cfg
+libnvidia-gpucomp
+libnvidia-ml 
+nvidia-driver-cuda-libs
+nvidia-driver-libs
+nvidia-modprobe
+nvidia-persistenced
+libva-nvidia-driver
+nvidia-settings
+nvidia-driver-selinux 
+nvidia-container-toolkit
+nvidia-container-toolkit-base
+libnvidia-container-tools
+libnvidia-container1
 uld
