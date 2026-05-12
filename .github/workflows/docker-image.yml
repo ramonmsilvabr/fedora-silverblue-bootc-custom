@@ -1,4 +1,4 @@
-name: Default Build
+name: nvidia-open build
 
 on:
   schedule:
@@ -11,7 +11,7 @@ on:
         required: false
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_NAME: fedora-silverblue-bootc-custom-nvidia-open
   REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
