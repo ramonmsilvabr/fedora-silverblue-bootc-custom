@@ -1,4 +1,4 @@
-name: nvidia-open build
+name: non-nvidia build
 
 on:
   schedule:
@@ -11,7 +11,7 @@ on:
         required: false
 
 env:
-  IMAGE_NAME: fedora-silverblue-bootc-custom-nvidia-open
+  IMAGE_NAME: fedora-silverblue-bootc-custom
   REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
@@ -28,7 +28,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-
+        with:
+          ref: non-nvidia
       - name: Log into GHCR
         uses: docker/login-action@v3
         with:
