@@ -68,7 +68,6 @@ dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedo
 dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 dnf5 config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
-dnf5 config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-multimedia.repo
 
 echo "Remove pacotes desnecessários"
 tr '\n' ' ' < dnf-remove-packages | xargs dnf5 remove -y
@@ -99,9 +98,6 @@ RUN <<EOF
 
 echo "Instalando pacotes adicionais e essenciais"
 tr '\n' ' ' < dnf-install-packages | xargs dnf5 install -y
-
-echo "Adicionando codecs"
-dnf5 swap -y ffmpeg-free ffmpeg --allowerasing
 
 EOF
 
