@@ -3,7 +3,9 @@
 Duas versões principais: 
 * `fedora-silverblue-bootc-custom` que **não** inclui os drivers proprietários da NVIDIA; 
 * `fedora-silverblue-bootc-custom-nvidia-open` que inclui os drivers proprietários sem as dependências de compilação.
+
 As duas imagens são baseadas no Fedora Silverblue, isso significa que o ambiente Desktop de escolha é o GNOME na sua versão mais recente.
+
 Essa imagem não oferece suporte a Secure Boot se não passar as chaves customizadas no build, então, para mantê-lo ativado você precisa de um **fork** do repositório, uma vez que não disponibilizo as chaves.
 
 # Como instalar
@@ -37,13 +39,13 @@ sudo podman run \
 ```
 
 * Se você já estiver em qualquer edição atômica do Fedora ou derivados, você pode puxar a imagem direto do registro.
-** Edição com drivers da NVIDIA:
+    * Edição com drivers da NVIDIA:
 
 ```
 sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom-nvidia-open:latest
 ```
 
-** Edição sem drivers da NVIDIA:
+    * Edição sem drivers da NVIDIA:
 ```
 sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom:latest
 ```
