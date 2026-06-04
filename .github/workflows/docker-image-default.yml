@@ -1,4 +1,4 @@
-name: non nvidia build
+name: default build
 
 on:
   schedule:
@@ -28,8 +28,7 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-        with:
-          ref: non-nvidia
+        
       - name: Log into GHCR
         uses: docker/login-action@v3
         with:
