@@ -41,6 +41,8 @@ EOF
 
 # Imagem principal
 ARG FEDORA_VERSION=44
+
+# Imagem do Fedora Silverblue bootc
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
 
 ARG SECUREBOOT_IGNORE=false
