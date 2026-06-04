@@ -38,14 +38,14 @@ sudo podman run \
     localhost/fedora-silverblue-bootc-custom
 ```
 
-* Se você já estiver em qualquer edição atômica do Fedora ou derivados, você pode puxar a imagem direto do registro.
-    * Edição com drivers da NVIDIA:
+* Se você já estiver em qualquer edição atômica do Fedora ou derivados, você pode puxar a imagem direto do registro. Note que não tem suporte a Secure Boot.
 
-```
-sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom-nvidia-open:latest
-```
+    * Edição com drivers da NVIDIA:
+    ```
+    sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom-nvidia-open:latest
+    ```
 
     * Edição sem drivers da NVIDIA:
-```
-sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom:latest
-```
+    ```
+    sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom:latest
+    ```
