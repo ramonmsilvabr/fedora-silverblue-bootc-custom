@@ -40,7 +40,7 @@ akmods --force --kernels "$KERNEL_VERSION"
 EOF
 
 # Imagem principal
-ARG FEDORA_VERSION
+ARG FEDORA_VERSION=44
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
 
 ARG SECUREBOOT_IGNORE=false
