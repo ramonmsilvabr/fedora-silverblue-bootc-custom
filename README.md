@@ -1,49 +1,24 @@
-# Fedora Silverblue com algumas baterias
+# Imagem do Fedora Silverblue OCI com modificações
 
-* Incluído módulos de Kernel já compilados:
-    * NVIDIA Linux Open Kernel Modules - nvidia-kmod; - na branch master apenas
-    * Advanced Xbox Wireless Controller Driver - xpadneo-kmod;
-* Incluído drivers:
-    * Bibliotecas para o driver da NVIDIA com suporte a NVIDIA-SMI e SELinux; - na branch master apenas
-    * PPDs para impressoras Samsung;
-    * Suporte a uso de aceleração gráfica da NVIDIA nos containers.    
-
-Os módulos da imagem não carregarão em sistemas com Secure Boot on, se precisar assinar sua versão, sinta-se livre para forkear o Repo e adicionar suas próprias chaves.
-
-| **Itens**  | **Informações** |
-| ------------- |:-------------:|
-| Base    | Fedora Silverblue     |
-| Versão padrão atual  | 44                    |
-| Ambiente Desktop | GNOME Shell 50.x   |
-| Repositório NVIDIA | https://negativo17.org/ |
+Duas versões principais: 
+* `fedora-silverblue-bootc-custom` que **não** inclui os drivers proprietários da NVIDIA; 
+* `fedora-silverblue-bootc-custom-nvidia-open` que inclui os drivers proprietários sem as dependências de compilação.
+As duas imagens são baseadas no Fedora Silverblue, isso significa que o ambiente Desktop de escolha é o GNOME na sua versão mais recente.
+Essa imagem não oferece suporte a Secure Boot se não passar as chaves customizadas no build, então, para mantê-lo ativado você precisa de um **fork** do repositório, uma vez que não disponibilizo as chaves.
 
 # Como instalar
 
-## Clone o repositório e crie um container com a imagem
+* Clone o repositório e crie um container com a imagem
 
 ```
 # Clonagem do repositório
 git clone https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom.git
 cd fedora-silverblue-bootc-custom
-```
-No repositório **master**, os drivers da nvidia estão incluídos, caso você queira utilizar a versão sem os drivers proprietários e usar os drivers open-source apenas faça o checkout para a branch non-nvidia.
-```
-# Checkout para a branch non-nvidia
-git checkout non-nvidia
-```
-
-```
-mkdir output
-# Caso você use a imagem sem Secure Boot
 sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom -f Containerfile
-# Caso você use o repo forkeado com Secure Boot
-sudo podman build -t <forked_repo> -f Containerfile
+# Substitua o Containerfile por Containerfile-nvidia-open se precisar do driver da NVIDIA
 ```
 
-
-## Criar ISO para instalar do zero.
-
-Aqui você roda o container que você baixou e produz a iso sem o Secure Boot
+* Se precisar da ISO para fazer uma instalação limpa:
 
 ```
 sudo podman run \
@@ -61,19 +36,14 @@ sudo podman run \
     localhost/fedora-silverblue-bootc-custom
 ```
 
-Para rodar com suporte a secure boot, chame seu registro 
+* Se você já estiver em qualquer edição atômica do Fedora ou derivados, você pode puxar a imagem direto do registro.
+** Edição com drivers da NVIDIA:
+
 ```
-sudo podman run \
-    --rm \
-    -it \
-    --privileged \
-    --pull=newer \
-    --security-opt label=type:unconfined_t \
-    -v ./output:/output \
-    -v ./config.toml:/config.toml:ro \
-    -v /var/lib/containers/storage:/var/lib/containers/storage \
-    quay.io/centos-bootc/bootc-image-builder:latest \
-    --type anaconda-iso \
-    --rootfs btrfs \
-    <seu registro/imagem>
+sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom-nvidia-open:latest
+```
+
+** Edição sem drivers da NVIDIA:
+```
+sudo bootc switch ghcr.io/ramonmsilvabr/fedora-silverblue-bootc-custom:latest
 ```

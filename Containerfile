@@ -84,7 +84,7 @@ EOF
 RUN <<EOF
 
 echo "Instalando pacotes adicionais e essenciais"
-tr '\n' ' ' < dnf-install-packages | xargs dnf5 install -y
+tr '\n' ' ' < dnf-install-packages-default | xargs dnf5 install -y
 
 EOF
 
