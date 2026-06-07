@@ -11,4 +11,7 @@ gnome-firmware
 zenity
 rclone
 glfw
+clamav
+clamav-freshclam
+clamd
 uld
