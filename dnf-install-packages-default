@@ -14,6 +14,5 @@ glfw
 clamav
 clamav-freshclam
 clamd
-python3-dbus
 nautilus-python
 uld
