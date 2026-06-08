@@ -14,6 +14,8 @@ glfw
 clamav
 clamav-freshclam
 clamd
+python3-dbus
+nautilus-python
 libnvidia-cfg
 libnvidia-gpucomp
 libnvidia-ml
