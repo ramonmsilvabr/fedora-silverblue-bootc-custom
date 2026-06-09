@@ -44,6 +44,8 @@ ARG FEDORA_VERSION=44
 
 # Imagem do Fedora Silverblue bootc
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
 
 ARG SECUREBOOT_IGNORE=false
 
