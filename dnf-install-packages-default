@@ -1,3 +1,5 @@
+@virtualization
+virt-manager
 distrobox
 libgda
 libgda-sqlite
