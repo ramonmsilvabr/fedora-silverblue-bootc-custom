@@ -1,0 +1,5 @@
+kargs = [
+  "rhgb",
+  "quiet",
+  "intel_iommu=on"
+]

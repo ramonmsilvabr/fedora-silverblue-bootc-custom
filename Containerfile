@@ -95,12 +95,12 @@ systemd-sysusers && grpconv && pwconv
 EOF
 
 # Etapa de cópia para os parâmetros de boot
-COPY 11-rhgb-quiet-args.toml ./
+COPY 11-rhgb-quiet-iommu-args.toml ./
 
 RUN <<EOF 
 
 echo "Adicionando parâmetros de boot"
-mv -v 11-rhgb-quiet-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-args.toml
+mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-args.toml
 
 EOF
 
