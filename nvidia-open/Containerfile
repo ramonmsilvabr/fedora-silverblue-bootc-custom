@@ -87,7 +87,7 @@ EOF
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
 COPY .anchor ./.anchor
-RUN <<EOF
+RUN --mount=type=bind,source=.,target=/context <<EOF
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
         bash ./secureboot/sign-modules.sh
