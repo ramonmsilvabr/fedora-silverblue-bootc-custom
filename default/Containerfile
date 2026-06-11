@@ -72,6 +72,8 @@ COPY .anchor ./.anchor
 RUN --mount=type=bind,source=.,target=/context <<EOF
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
+        mkdir -p ./.anchor
+        cp -r /context/.anchor/* ./ 2>/dev/null
         bash ./secureboot/sign-modules.sh
 fi
 EOF
