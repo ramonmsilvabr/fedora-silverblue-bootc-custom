@@ -1,0 +1,93 @@
+# Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
+ARG FEDORA_VERSION=44
+
+# Estágio de construção de módulos (pacotes kmod)
+FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
+
+RUN <<EOF 
+# Altera modo do Shell
+set -e
+# Atualiza pacote kernel*
+dnf upgrade -y 'kernel*' --refresh
+# Instala Dev Tools do Kernel
+dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
+# Variável para versão do Kernel
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
+# Habilita copr e config-manager no dnf
+dnf install -y 'dnf-command(config-manager)' 'dnf-command(copr)'
+# Repositórios
+dnf copr enable -y sentry/xpadneo
+# Instalação akmods dos Módulos
+dnf install -y xpadneo --refresh
+# Compilação dos módulos
+akmods --force --kernels "$KERNEL_VERSION"
+EOF
+
+# Puxa argumento de cima
+ARG FEDORA_VERSION
+
+# Constrói imagem especificada do Fedora Silverblue em bootc
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
+# Adiciona labels do ostree
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
+WORKDIR /tmp/build-context
+# Flag opcional para ignorar Secure Boot
+ARG SECUREBOOT_IGNORE=false
+# Cria diretórios home
+RUN mkdir -p /var/roothome /data /var/home
+# Copia lista de pacotes e módulos compilados
+COPY dnf* ./
+COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+# Ajustando diretórios para /usr/local e /opt para evitar problemas de permissão e facilitar a instalação dos pacotes
+RUN <<EOF
+rm -rf /opt
+mkdir /var/opt
+ln -s /var/opt /opt
+mkdir /var/usrlocal
+mv /usr/local /usr/local_old
+ln -s /var/usrlocal /usr/local
+mv /usr/local_old/* /usr/local/
+rm -rf /usr/local_old
+EOF
+RUN <<EOF
+# Repositórios
+dnf copr enable sentry/xpadneo -y
+dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
+# Remoção dos pacotes da lista
+tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
+# Atualização de todos os pacotes
+dnf upgrade -y --refresh
+EOF
+# Instalação dos kmods compilados
+RUN dnf -y install ./kmod-xpadneo-*.rpm
+# Instalação dos pacotes que estão fora da imagem padrão
+RUN tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
+# Etapa de cópia para os parâmetros de boot
+COPY 11-rhgb-quiet-iommu-args.toml ./
+RUN mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-args.toml
+# Etapa de cópia para o Secure Boot
+COPY secureboot/ ./secureboot/
+COPY .anchor ./.anchor
+RUN <<EOF
+if [ "$SECUREBOOT_IGNORE" = "false" ]; then
+        set -e
+        bash ./secureboot/sign-modules.sh
+fi
+EOF
+# Fase de limpeza
+RUN <<EOF
+rm -rvf dnf* 
+rm -rvf kmod-*.rpm
+rm -rvf .anchor
+rm -rvf secureboot
+dnf clean all
+rm -rfv /var/cache/* \
+        /var/lib/* \
+        /var/log/* \
+        /var/tmp/* 
+EOF
+# Volta pra raiz
+WORKDIR /
+# Verificar por erros na imagem 
+RUN bootc container lint
