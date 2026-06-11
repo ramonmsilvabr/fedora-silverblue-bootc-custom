@@ -14,7 +14,7 @@ dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
 # Variável para versão do Kernel
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 # Habilita copr e config-manager no dnf
-dnf install -y 'dnf-command(config-manager)' 'dnf-command(copr)'
+dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 # Repositórios
 dnf copr enable -y sentry/xpadneo
 # Instalação akmods dos Módulos
