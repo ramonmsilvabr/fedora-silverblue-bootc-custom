@@ -83,7 +83,7 @@ mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 EOF
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
-COPY .anchor ./.anchor
+
 RUN --mount=type=bind,source=.,target=/context <<EOF
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
