@@ -16,8 +16,10 @@ Essa imagem não oferece suporte a Secure Boot se não passar as chaves customiz
 # Clonagem do repositório
 git clone https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom.git
 cd fedora-silverblue-bootc-custom
-sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom -f Containerfile
-# Substitua o Containerfile por Containerfile-nvidia-open se precisar do driver da NVIDIA
+# Com drivers nvidia
+sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom-nvidia-open . -f nvidia-open/Containerfile
+# Sem drivers nvidia
+sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom . -f default/Containerfile
 ```
 
 * Se precisar da ISO para fazer uma instalação limpa:
