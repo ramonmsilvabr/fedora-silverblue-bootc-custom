@@ -69,12 +69,7 @@ EOF
 # Instalação dos kmods compilados
 RUN <<EOF
 # kmod-nvidia
-dnf download nvidia-kmod-common nvidia-driver-cuda
-rpm -vi --nodeps nvidia-kmod-common*.rpm
-rpm -vi --nodeps nvidia-driver-cuda*.rpm
-dnf -y install ./kmod-nvidia-*.rpm
-rm -rvf nvidia-driver-cuda*.rpm
-rm -rvf nvidia-kmod-common*.rpm
+dnf -y install ./kmod-nvidia-*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False
 # kmod-xpadneo
 dnf -y install ./kmod-xpadneo-*.rpm
 EOF
