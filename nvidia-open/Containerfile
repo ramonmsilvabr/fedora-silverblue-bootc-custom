@@ -16,9 +16,10 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 # Repositórios
 dnf copr enable -y sentry/xpadneo
-dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 # Instalação akmods dos Módulos
-dnf install -y nvidia-driver nvidia-open nvidia-driver-cuda \
+dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh
 # Compilação dos módulos
 akmods --force --kernels "$KERNEL_VERSION"
@@ -56,7 +57,8 @@ RUN <<EOF
 # Repositórios
 dnf copr enable sentry/xpadneo -y
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
-dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
 # Remoção dos pacotes da lista
