@@ -92,13 +92,6 @@ if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         bash ./secureboot/sign-modules.sh
 fi
 EOF
-# Fase de parametrização
-RUN cat <<EOF > /etc/modprobe.d/nvidia-custom.conf
-options nvidia NVreg_PreserveVideoMemoryAllocations=2
-options nvidia NVreg_TemporaryFilePath=/var/tmp
-options nvidia NVreg_UseKernelSuspendNotifiers=1
-options nvidia NVreg_EnableS0ixPowerManagement=1
-EOF
 # Fase de limpeza
 RUN <<EOF
 rm -rvf /tmp/build-context
