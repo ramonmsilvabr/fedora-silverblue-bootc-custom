@@ -86,13 +86,6 @@ mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-a
 mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
 mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.conf
 EOF
-# Desativa serviços de suspensão da NVIDIA
-RUN <<EOF
-systemctl disable nvidia-suspend.service
-systemctl disable nvidia-resume.service
-systemctl disable nvidia-suspend-then-hibernate.service
-systemctl disable nvidia-hibernate.service
-EOF
 
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
