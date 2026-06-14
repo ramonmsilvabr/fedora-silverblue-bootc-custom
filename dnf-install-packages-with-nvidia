@@ -16,6 +16,7 @@ clamav
 clamav-freshclam
 clamd
 nautilus-python
+libva-nvidia-driver
 nvidia-container-toolkit
 nvidia-container-toolkit-base
 libnvidia-container-tools
