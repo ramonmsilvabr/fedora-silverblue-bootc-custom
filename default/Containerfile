@@ -54,7 +54,11 @@ RUN <<EOF
 # Repositórios--mount=type=bind,source=.,target=/context
 dnf copr enable sentry/xpadneo -y
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
-# Remoção dos pacotes da lista
+# Remoção dos pacotes e repositórios da lista
+rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
+rm -rvf /etc/yum.repos.d/google-chrome.repo
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
 # Atualização de todos os pacotes
 dnf upgrade -y --refresh
@@ -79,6 +83,7 @@ fi
 EOF
 # Fase de limpeza
 RUN <<EOF
+
 rm -rvf /tmp/build-context
 dnf clean all
 rm -rfv /var/cache/* \

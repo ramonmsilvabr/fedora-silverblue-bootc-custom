@@ -61,7 +61,11 @@ dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-releas
 https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
-# Remoção dos pacotes da lista
+# Remoção dos pacotes e repositórios da lista
+rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
+rm -rvf /etc/yum.repos.d/google-chrome.repo
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
 # Atualização de todos os pacotes
 dnf upgrade -y --refresh
@@ -75,12 +79,21 @@ dnf -y install ./kmod-xpadneo-*.rpm
 EOF
 # Instalação dos pacotes que estão fora da imagem padrão
 RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
-# Etapa de cópia para os parâmetros de boot
-COPY 10-nvidia-args.toml 11-rhgb-quiet-iommu-args.toml ./
+# Etapa de cópia para os parâmetros de boot e nvidia
+COPY 10-nvidia-args.toml 11-rhgb-quiet-iommu-args.toml nvidia-open/nvidia-power-management.conf ./
 RUN <<EOF
 mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-args.toml
 mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
+mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.conf
 EOF
+# Desativa serviços de suspensão da NVIDIA
+RUN <<EOF
+systemctl disable nvidia-suspend.service
+systemctl disable nvidia-resume.service
+systemctl disable nvidia-suspend-then-hibernate.service
+systemctl disable nvidia-hibernate.service
+EOF
+
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
 
