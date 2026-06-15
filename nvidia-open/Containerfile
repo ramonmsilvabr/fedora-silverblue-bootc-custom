@@ -39,7 +39,7 @@ ARG SECUREBOOT_IGNORE=false
 # Cria diretórios home
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
-COPY dnf* ./
+COPY nvidia-open/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 # Ajustando diretórios para /usr/local e /opt para evitar problemas de permissão e facilitar a instalação dos pacotes
@@ -80,7 +80,7 @@ EOF
 # Instalação dos pacotes que estão fora da imagem padrão
 RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Etapa de cópia para os parâmetros de boot e nvidia
-COPY 10-nvidia-args.toml 11-rhgb-quiet-iommu-args.toml nvidia-open/nvidia-power-management.conf ./
+COPY nvidia-open/10-nvidia-args.toml 11-rhgb-quiet-iommu-args.toml nvidia-open/nvidia-power-management.conf ./
 RUN <<EOF
 mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-args.toml
 mv -v 10-nvidia-args.toml /usr/lib/bootc/kargs.d/10-nvidia-args.toml
