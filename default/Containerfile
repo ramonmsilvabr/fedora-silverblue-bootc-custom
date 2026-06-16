@@ -68,8 +68,8 @@ RUN dnf -y install ./kmod-xpadneo-*.rpm
 # Instalação dos pacotes que estão fora da imagem padrão
 RUN tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
 # Etapa de cópia para os parâmetros de boot
-COPY 11-rhgb-quiet-iommu-args.toml ./
-RUN mv -v 11-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/11-rhgb-quiet-iommu-args.toml
+COPY 1-kernel-cmdline-args.toml ./
+RUN mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
 COPY .anchor ./.anchor
