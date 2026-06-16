@@ -1,6 +1,4 @@
 kargs = [
-  "rhgb",
-  "quiet",
   "vconsole.keymap=br",
   "intel_iommu=on"
 ]
