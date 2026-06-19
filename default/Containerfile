@@ -72,7 +72,6 @@ fi
 EOF
 # Fase de limpeza
 RUN <<EOF
-
 rm -rvf /tmp/build-context
 dnf clean all
 rm -rfv /var/cache/* \
