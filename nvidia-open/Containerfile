@@ -82,7 +82,7 @@ RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Etapa de cópia para os parâmetros de boot e nvidia
 COPY nvidia-open/2-nvidia-args.toml 1-kernel-cmdline-args.toml nvidia-open/nvidia-power-management.conf ./
 RUN <<EOF
-mv -v 1-rhgb-quiet-iommu-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
+mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
 mv -v 2-nvidia-args.toml /usr/lib/bootc/kargs.d/2-nvidia-args.toml
 mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.conf
 EOF
