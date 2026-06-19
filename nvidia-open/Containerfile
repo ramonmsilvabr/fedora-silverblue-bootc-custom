@@ -42,17 +42,6 @@ RUN mkdir -p /var/roothome /data /var/home
 COPY nvidia-open/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-# Ajustando diretórios para /usr/local e /opt para evitar problemas de permissão e facilitar a instalação dos pacotes
-RUN <<EOF
-rm -rf /opt
-mkdir /var/opt
-ln -s /var/opt /opt
-mkdir /var/usrlocal
-mv /usr/local /usr/local_old
-ln -s /var/usrlocal /usr/local
-mv /usr/local_old/* /usr/local/
-rm -rf /usr/local_old
-EOF
 RUN <<EOF
 # Repositórios
 dnf copr enable sentry/xpadneo -y
