@@ -16,7 +16,7 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 # Repositórios
 dnf copr enable -y sentry/xpadneo
-dnf config-manager --set-enabled rpmfusion-nonfree-nvidia-driver
+dnf config-manager enable rpmfusion-nonfree-nvidia-driver
 # Instalação akmods dos Módulos
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh
@@ -44,7 +44,7 @@ COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 RUN <<EOF
 # Repositórios
 dnf copr enable sentry/xpadneo -y
-dnf config-manager --set-enabled rpmfusion-nonfree-nvidia-driver
+dnf config-manager enable rpmfusion-nonfree-nvidia-driver
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
