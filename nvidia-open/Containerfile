@@ -16,7 +16,7 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 # Repositórios
 dnf copr enable -y sentry/xpadneo
-dnf config-manager enable rpmfusion-nonfree-nvidia-driver
+dnf install -y fedora-workstation-repositories
 # Instalação akmods dos Módulos
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh
