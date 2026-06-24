@@ -16,8 +16,6 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
 # Repositórios
 dnf copr enable -y sentry/xpadneo
-dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 # Instalação akmods dos Módulos
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh
@@ -46,13 +44,10 @@ RUN <<EOF
 # Repositórios
 dnf copr enable sentry/xpadneo -y
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
-dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
 # Remoção dos pacotes e repositórios da lista
 rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo
 rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
 rm -rvf /etc/yum.repos.d/google-chrome.repo
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
@@ -75,10 +70,8 @@ mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.to
 mv -v 2-nvidia-args.toml /usr/lib/bootc/kargs.d/2-nvidia-args.toml
 mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.conf
 EOF
-
 # Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
-
 RUN --mount=type=bind,source=.,target=/context <<EOF
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
