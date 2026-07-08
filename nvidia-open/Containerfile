@@ -52,10 +52,10 @@ mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.
 COPY secureboot/ ./secureboot/
 RUN --mount=type=bind,source=.,target=/context \
 /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
-        set -e \
-        mkdir -p ./.anchor \
-        cp -r /context/.anchor/* ./ 2>/dev/null \
-        bash ./secureboot/sign-modules.sh \
+        set -e; \
+        mkdir -p ./.anchor; \
+        cp -r /context/.anchor/* ./ 2>/dev/null; \
+        bash ./secureboot/sign-modules.sh; \
 fi'
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
