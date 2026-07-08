@@ -29,7 +29,7 @@ EOF
 ARG FEDORA_VERSION
 
 # Constrói imagem especificada do Fedora Silverblue em bootc
-FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} as main
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} as final
 # Adiciona labels do ostree
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
@@ -101,7 +101,7 @@ RUN bootc container lint
 # Otimização da imagem principal usando o chunkah aproveitando layers compartilhados
 FROM quay.io/coreos/chunkah AS chunkah
 ARG CHUNKAH_CONFIG_STR
-RUN --mount=from=main,src=/,target=/chunkah,ro \
+RUN --mount=from=final,src=/,target=/chunkah,ro \
     --mount=type=bind,target=/run/src,rw \
     chunkah build --max-layers 128 \
     --label ostree.commit- \
