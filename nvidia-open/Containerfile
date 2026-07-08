@@ -3,27 +3,16 @@ ARG FEDORA_VERSION=44
 
 # Estágio de construção de módulos (pacotes kmod)
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
-RUN <<EOF 
-# Altera modo do Shell
-set -e
-# Atualiza pacote kernel*
-dnf upgrade -y 'kernel*' --refresh
-# Instala Dev Tools do Kernel
-dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
-# Variável para versão do Kernel
-KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
-# Habilita copr e config-manager no dnf
-dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
-# Repositórios
-dnf copr enable -y sentry/xpadneo
-dnf install -y fedora-workstation-repositories
-dnf config-manager enable rpmfusion-nonfree-nvidia-driver
-# Instalação akmods dos Módulos
+RUN dnf upgrade -y 'kernel*' --refresh && \
+dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh && \
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
+dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)' && \
+dnf copr enable -y sentry/xpadneo && \
+dnf install -y fedora-workstation-repositories && \
+dnf config-manager enable rpmfusion-nonfree-nvidia-driver && \
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
-xpadneo --refresh
-# Compilação dos módulos
+xpadneo --refresh && \
 akmods --force --kernels "$KERNEL_VERSION"
-EOF
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
@@ -42,52 +31,35 @@ RUN mkdir -p /var/roothome /data /var/home
 COPY nvidia-open/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-RUN <<EOF
-# Repositórios
-dnf copr enable sentry/xpadneo -y
-dnf install -y fedora-workstation-repositories
-dnf config-manager enable rpmfusion-nonfree-nvidia-driver
-dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
-dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo
-sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo
-# Remoção dos pacotes e repositórios da lista
-rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-rm -rvf /etc/yum.repos.d/google-chrome.repo
-tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
-# Atualização de todos os pacotes
+RUN dnf copr enable sentry/xpadneo -y && \
+dnf install -y fedora-workstation-repositories && \
+dnf config-manager enable rpmfusion-nonfree-nvidia-driver && \
+dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
+dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
+sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
+rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo && \
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo && \
+rm -rvf /etc/yum.repos.d/google-chrome.repo && \
+tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
-EOF
-# Instalação dos kmods compilados
-RUN <<EOF
-# kmod-nvidia
-dnf -y install ./kmod-nvidia-*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False
-# kmod-xpadneo
+RUN dnf -y install ./kmod-nvidia-*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo-*.rpm
-EOF
-# Instalação dos pacotes que estão fora da imagem padrão
 RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
-# Etapa de cópia para os parâmetros de boot e nvidia
 COPY nvidia-open/2-nvidia-args.toml 1-kernel-cmdline-args.toml nvidia-open/nvidia-power-management.conf ./
-RUN <<EOF
-mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
-mv -v 2-nvidia-args.toml /usr/lib/bootc/kargs.d/2-nvidia-args.toml
+RUN mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml && \
+mv -v 2-nvidia-args.toml /usr/lib/bootc/kargs.d/2-nvidia-args.toml && \
 mv -fv nvidia-power-management.conf /usr/lib/modprobe.d/nvidia-power-management.conf
-EOF
-# Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
-RUN --mount=type=bind,source=.,target=/context <<EOF
+RUN --mount=type=bind,source=.,target=/context \
 if [ "$SECUREBOOT_IGNORE" = "false" ]; then
         set -e
         mkdir -p ./.anchor
         cp -r /context/.anchor/* ./ 2>/dev/null
         bash ./secureboot/sign-modules.sh
 fi
-EOF
 # Fase de limpeza
-RUN <<EOF
-rm -rvf /tmp/build-context
-dnf clean all
+RUN rm -rvf /tmp/build-context && \
+dnf clean all && \
 rm -rfv /var/cache/* \
         /var/lib/* \
         /var/log/* \
