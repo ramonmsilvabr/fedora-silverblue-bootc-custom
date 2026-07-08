@@ -66,7 +66,11 @@ jobs:
             -t "${{ steps.meta.outputs.primary }}" \
             -f ./nvidia-open/Containerfile \
             -v "$(pwd):/run/src" \
-      
+            .
+            
+      - name: Push da tag principal
+        run: buildah push "${{ steps.meta.outputs.primary }}"
+        
       - name: Aplicar tags adicionais via skopeo
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
@@ -89,8 +93,5 @@ jobs:
               "docker://${{ steps.meta.outputs.primary }}" \
               "docker://${BASE}:${TAG}"
           done
-      
-      - name: Push da tag principal
-        run: buildah push "${{ steps.meta.outputs.primary }}"
 
           
