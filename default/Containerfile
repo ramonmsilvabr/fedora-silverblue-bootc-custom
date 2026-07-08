@@ -3,31 +3,19 @@ ARG FEDORA_VERSION=44
 
 # Estágio de construção de módulos (pacotes kmod)
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
-
-RUN <<EOF 
-# Altera modo do Shell
-set -e
-# Atualiza pacote kernel*
-dnf upgrade -y 'kernel*' --refresh
-# Instala Dev Tools do Kernel
-dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh
-# Variável para versão do Kernel
-KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
-# Habilita copr e config-manager no dnf
-dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)'
-# Repositórios
-dnf copr enable -y sentry/xpadneo
-# Instalação akmods dos Módulos
-dnf install -y xpadneo --refresh
-# Compilação dos módulos
+RUN dnf upgrade -y 'kernel*' --refresh && \
+dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh && \
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
+dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)' && \
+dnf copr enable -y sentry/xpadneo && \
+dnf install -y xpadneo --refresh && \
 akmods --force --kernels "$KERNEL_VERSION"
-EOF
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
 
 # Constrói imagem especificada do Fedora Silverblue em bootc
-FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION}
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} as final
 # Adiciona labels do ostree
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
@@ -39,47 +27,49 @@ RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY default/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-RUN <<EOF
-# Repositórios--mount=type=bind,source=.,target=/context
-dnf copr enable sentry/xpadneo -y
-dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo
-# Remoção dos pacotes e repositórios da lista
-rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo
-rm -rvf /etc/yum.repos.d/google-chrome.repo
-tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y
-# Atualização de todos os pacotes
+RUN dnf copr enable sentry/xpadneo -y && \
+dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
+rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo && \
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo && \
+rm -rvf /etc/yum.repos.d/google-chrome.repo && \
+rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo && \
+tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
-EOF
-# Instalação dos kmods compilados
 RUN dnf -y install ./kmod-xpadneo-*.rpm
-# Instalação dos pacotes que estão fora da imagem padrão
 RUN tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
-# Etapa de cópia para os parâmetros de boot
 COPY 1-kernel-cmdline-args.toml ./
 RUN mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
-# Etapa de cópia para o Secure Boot
 COPY secureboot/ ./secureboot/
-COPY .anchor ./.anchor
-RUN --mount=type=bind,source=.,target=/context <<EOF
-if [ "$SECUREBOOT_IGNORE" = "false" ]; then
-        set -e
-        mkdir -p ./.anchor
-        cp -r /context/.anchor/* ./ 2>/dev/null
-        bash ./secureboot/sign-modules.sh
-fi
-EOF
+RUN --mount=type=bind,source=.,target=/context \
+/bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
+        set -e; \
+        mkdir -p ./.anchor; \
+        cp -r /context/.anchor/* ./ 2>/dev/null; \
+        bash ./secureboot/sign-modules.sh; \
+fi'
 # Fase de limpeza
-RUN <<EOF
-rm -rvf /tmp/build-context
-dnf clean all
+RUN rm -rvf /tmp/build-context && \
+dnf clean all && \
 rm -rfv /var/cache/* \
         /var/lib/* \
         /var/log/* \
         /var/tmp/* 
-EOF
 # Volta pra raiz
 WORKDIR /
 # Verificar por erros na imagem 
 RUN bootc container lint
+
+# Otimização da imagem principal usando o chunkah aproveitando layers compartilhados
+FROM quay.io/coreos/chunkah AS chunkah
+ARG CHUNKAH_CONFIG_STR
+RUN --mount=from=final,src=/,target=/chunkah,ro \
+    --mount=type=bind,target=/run/src,rw \
+    chunkah build --max-layers 128 \
+    --label ostree.commit- \
+    --label ostree.final-diffid- \
+    --output oci:/run/src/out
+
+# Joga a imagem para fora usando o resultado do chunkah
+FROM oci:out
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
