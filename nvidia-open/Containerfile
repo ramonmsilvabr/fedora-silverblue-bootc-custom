@@ -64,7 +64,6 @@ rm -rfv /var/cache/* \
         /var/lib/* \
         /var/log/* \
         /var/tmp/* 
-EOF
 # Volta pra raiz
 WORKDIR /
 # Verificar por erros na imagem 
