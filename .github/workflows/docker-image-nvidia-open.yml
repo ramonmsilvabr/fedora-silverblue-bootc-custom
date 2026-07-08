@@ -71,8 +71,8 @@ jobs:
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
           SHORT_SHA="${{ steps.meta.outputs.short_sha }}"
-          BASE="{{ env.REGISTRY }}/{{ env.IMAGE_NAME }}"
-          CREDS="{{ github.actor }}:{{ secrets.GITHUB_TOKEN }}"
+          BASE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          CREDS="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
           TAGS=()
           TAGS+=("${VERSION}")
           TAGS+=("sha-${SHORT_SHA}")
@@ -81,8 +81,6 @@ jobs:
           elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
             TAGS+=("latest")
           fi
-
-          # Itera sobre todas as tags coletadas e copia o manifesto
           for TAG in "${TAGS[@]}"; do
             echo "→ Copiando manifesto para :${TAG}"
             skopeo copy \
