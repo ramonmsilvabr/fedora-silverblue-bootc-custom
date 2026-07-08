@@ -19,7 +19,7 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     env:
-      SELECTED_VERSION: ${{ github.event.inputs.fedora_version }}
+      SELECTED_VERSION: ${{ github.event.inputs.fedora_version || '44' }}
       DEFAULT_VERSION: '44'
     permissions:
       contents: read
