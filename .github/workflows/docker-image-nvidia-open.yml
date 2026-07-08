@@ -89,12 +89,9 @@ jobs:
             TAGS+=("old")
           fi
           for TAG in "${TAGS[@]}"; do
-            echo "→ Copiando manifesto para :${TAG}"
             skopeo copy \
               --src-creds  "${CREDS}" \
               --dest-creds "${CREDS}" \
               "docker://${{ steps.meta.outputs.primary }}" \
               "docker://${BASE}:${TAG}"
           done
-
-          
