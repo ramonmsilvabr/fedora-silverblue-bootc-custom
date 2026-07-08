@@ -61,7 +61,7 @@ jobs:
       - name: Build and Push
         run: |
           buildah build \
-            --build-arg FEDORA_VERSION=$VERSION \
+            --build-arg FEDORA_VERSION="${VERSION}" \
             --skip-unused-stages=false \
             --security-opt label=disable \
             -t "${{ steps.meta.outputs.primary }}" \
