@@ -13,6 +13,7 @@ on:
 env:
   IMAGE_NAME: fedora-silverblue-bootc-custom-nvidia-open
   REGISTRY: ghcr.io/${{ github.repository_owner }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-push:
@@ -28,7 +29,19 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+      - name: Gerar metadados do build
+        id: meta
+        run: |
+          VERSION=${{ env.SELECTED_VERSION }})
+          DATE=$(TZ='America/Sao_Paulo' date +'%Y%m%d-%H%M')
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          PRIMARY="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}-${DATE}"
 
+          echo "version=${VERSION}"     >> $GITHUB_OUTPUT
+          echo "date=${DATE}"           >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "primary=${PRIMARY}"     >> $GITHUB_OUTPUT
+          
       - name: Log into GHCR
         uses: docker/login-action@v3
         with:
@@ -46,14 +59,40 @@ jobs:
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/akmods.priv
 
       - name: Build and Push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./nvidia-open/Containerfile
-          push: true
-          build-args: |
-            FEDORA_VERSION=${{ env.SELECTED_VERSION }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
-            ${{ (env.SELECTED_VERSION == env.DEFAULT_VERSION) && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        run: |
+          buildah build \
+            --skip-unused-stages=false \
+            --security-opt label=disable \
+            -t "${{ steps.meta.outputs.primary }}" \
+            -f ./nvidia-open/Containerfile \
+            -v "$(pwd):/run/src" \
+      
+      - name: Aplicar tags adicionais via skopeo
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          SHORT_SHA="${{ steps.meta.outputs.short_sha }}"
+          BASE="{{ env.REGISTRY }}/{{ env.IMAGE_NAME }}"
+          CREDS="{{ github.actor }}:{{ secrets.GITHUB_TOKEN }}"
+          TAGS=()
+          TAGS+=("${VERSION}")
+          TAGS+=("sha-${SHORT_SHA}")
+          if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
+            TAGS+=("beta")
+          elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
+            TAGS+=("latest")
+          fi
+
+          # Itera sobre todas as tags coletadas e copia o manifesto
+          for TAG in "${TAGS[@]}"; do
+            echo "→ Copiando manifesto para :${TAG}"
+            skopeo copy \
+              --src-creds  "${CREDS}" \
+              --dest-creds "${CREDS}" \
+              "docker://${{ steps.meta.outputs.primary }}" \
+              "docker://{BASE}:${TAG}"
+          done
+      
+      - name: Push da tag principal
+        run: buildah push "${{ steps.meta.outputs.primary }}"
+
+          
