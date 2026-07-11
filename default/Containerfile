@@ -29,10 +29,6 @@ COPY default/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 RUN dnf copr enable sentry/xpadneo -y && \
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
-rm -rvf /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo && \
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-steam.repo && \
-rm -rvf /etc/yum.repos.d/google-chrome.repo && \
-rm -rvf /etc/yum.repos.d/rpmfusion-nonfree-nvidia-driver.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
 RUN dnf -y install ./kmod-xpadneo-*.rpm
