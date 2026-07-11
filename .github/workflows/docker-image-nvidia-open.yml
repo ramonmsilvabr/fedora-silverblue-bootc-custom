@@ -27,8 +27,10 @@ jobs:
       id-token: write
 
     steps:
+    
       - name: Checkout Repo
         uses: actions/checkout@v4
+        
       - name: Gerar metadados do build
         id: meta
         run: |
@@ -57,7 +59,18 @@ jobs:
             mkdir -p .anchor
             echo -n "$CERTIFICATE_BASE64" | base64 --decode > .anchor/akmods.der
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/akmods.priv
-
+      
+      - name: Determinar tag de canal
+        id: channel_tag
+        run: |
+          if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
+            echo "channel=beta" >> $GITHUB_OUTPUT
+          elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
+            echo "channel=latest" >> $GITHUB_OUTPUT
+          else
+            echo "channel=old" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
@@ -68,27 +81,6 @@ jobs:
             FEDORA_VERSION=${{ env.SELECTED_VERSION }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
-            
-      - name: Aplicar tags adicionais via skopeo
-        run: |
-          VERSION="${{ steps.meta.outputs.version }}"
-          SHORT_SHA="${{ steps.meta.outputs.short_sha }}"
-          BASE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          CREDS="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
-          TAGS=()
-          TAGS+=("${VERSION}")
-          TAGS+=("sha-${SHORT_SHA}")
-          if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
-            TAGS+=("beta")
-          elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
-            TAGS+=("latest")
-          elif [ "${{ env.SELECTED_VERSION }}" -lt "${{ env.DEFAULT_VERSION }}" ]; then
-            TAGS+=("old")
-          fi
-          for TAG in "${TAGS[@]}"; do
-            skopeo copy \
-              --src-creds  "${CREDS}" \
-              --dest-creds "${CREDS}" \
-              "docker://${{ steps.meta.outputs.primary }}" \
-              "docker://${BASE}:${TAG}"
-          done
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.primary }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.short_sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.channel_tag.outputs.channel }}
