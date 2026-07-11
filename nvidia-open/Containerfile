@@ -10,7 +10,7 @@ dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)' && \
 dnf copr enable -y sentry/xpadneo && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
-dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
+dnf install -y akmod-nvidia-open xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh && \
 akmods --force --kernels "$KERNEL_VERSION"
 
