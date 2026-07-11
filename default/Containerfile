@@ -58,18 +58,3 @@ rm -rfv /var/cache/* \
 WORKDIR /
 # Verificar por erros na imagem 
 RUN bootc container lint
-
-# Otimização da imagem principal usando o chunkah aproveitando layers compartilhados
-FROM quay.io/coreos/chunkah AS chunkah
-ARG CHUNKAH_CONFIG_STR
-RUN --mount=from=final,src=/,target=/chunkah,ro \
-    --mount=type=bind,target=/run/src,rw \
-    chunkah build --max-layers 128 \
-    --label ostree.commit- \
-    --label ostree.final-diffid- \
-    --output oci:/run/src/out
-
-# Joga a imagem para fora usando o resultado do chunkah
-FROM oci:out
-LABEL ostree.bootable="true"
-LABEL containers.bootc="1"
