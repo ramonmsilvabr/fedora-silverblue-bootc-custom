@@ -57,19 +57,14 @@ jobs:
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/akmods.priv
 
       - name: Build and Push
-        run: |
-          buildah build \
-            --build-arg FEDORA_VERSION=${{ env.SELECTED_VERSION }} \
-            --skip-unused-stages=false \
-            --security-opt label=disable \
-            -t "${{ steps.meta.outputs.primary }}" \
-            -f ./nvidia-open/Containerfile \
-            -v "$(pwd):/run/src" \
-            .
-            
-      - name: Push da tag principal
-        run: buildah push "${{ steps.meta.outputs.primary }}"
-        
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Containerfile-nvidia-open
+          push: true
+          build-args: |
+            FEDORA_VERSION=${{ env.SELECTED_VERSION }}
+          
       - name: Aplicar tags adicionais via skopeo
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
