@@ -12,7 +12,8 @@ dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
 dnf install -y akmod-nvidia-open xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh && \
-akmods --force --akmod xpadneo --akmod nvidia-open --kernels "$KERNEL_VERSION"
+akmods --akmod nvidia-open --kernels "$KERNEL_VERSION" --force && \
+akmods --akmod xpadneo --kernels "$KERNEL_VERSION" --force
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
