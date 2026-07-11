@@ -64,11 +64,11 @@ jobs:
         id: channel_tag
         run: |
           if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
-            echo "channel=beta" >> $GITHUB_OUTPUT
+            echo "beta" >> $GITHUB_OUTPUT
           elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
-            echo "channel=latest" >> $GITHUB_OUTPUT
+            echo "latest" >> $GITHUB_OUTPUT
           else
-            echo "channel=old" >> $GITHUB_OUTPUT
+            echo "old" >> $GITHUB_OUTPUT
           fi
           
       - name: Build and Push
