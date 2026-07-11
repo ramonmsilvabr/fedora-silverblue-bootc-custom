@@ -34,12 +34,8 @@ jobs:
         run: |
           VERSION=${{ env.SELECTED_VERSION }}
           DATE=$(TZ='America/Sao_Paulo' date +'%Y%m%d-%H%M')
+          VERSIONANDDATE="${VERSION}-${DATE}"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          PRIMARY="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}-${DATE}"
-          echo "version=${VERSION}"     >> $GITHUB_OUTPUT
-          echo "date=${DATE}"           >> $GITHUB_OUTPUT
-          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "primary=${PRIMARY}"     >> $GITHUB_OUTPUT
           if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
             echo "channel=beta" >> $GITHUB_OUTPUT
           elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
@@ -47,6 +43,9 @@ jobs:
           else
             echo "channel=old" >> $GITHUB_OUTPUT
           fi
+          echo "version=${VERSION}"     >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "versionanddate=${VERSIONANDDATE}"     >> $GITHUB_OUTPUT
           
       - name: Log into GHCR
         uses: docker/login-action@v3
@@ -74,6 +73,6 @@ jobs:
             FEDORA_VERSION=${{ env.SELECTED_VERSION }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.primary }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.versionanddate }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.short_sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.channel }}
