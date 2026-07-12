@@ -18,7 +18,7 @@ akmods --kernels "$KERNEL_VERSION" --force
 ARG FEDORA_VERSION
 
 # Constrói imagem especificada do Fedora Silverblue em bootc
-FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} as final
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
