@@ -6,8 +6,8 @@ FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 RUN dnf upgrade -y 'kernel*' --refresh && \
 dnf install -y kernel-devel openssl perl-devel mokutil keyutils --refresh && \
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
-dnf install -y 'dnf5-command(config-manager)' 'dnf5-command(copr)' && \
-dnf copr enable -y sentry/xpadneo && \
+dnf install -y 'dnf5-command(config-manager)' && \
+dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
 dnf install -y akmod-nvidia-open xorg-x11-drv-nvidia-cuda \
@@ -32,7 +32,7 @@ RUN mkdir -p /var/roothome /data /var/home
 COPY nvidia-open/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 COPY --from=builder /var/cache/akmods/nvidia-open/kmod-nvidia-open-*.rpm ./
-RUN dnf copr enable sentry/xpadneo -y && \
+RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
