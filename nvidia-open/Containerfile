@@ -10,10 +10,9 @@ dnf install -y 'dnf5-command(config-manager)' && \
 dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
-dnf install -y akmod-nvidia-open xorg-x11-drv-nvidia-cuda \
+dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda \
 xpadneo --refresh && \
-akmods --akmod xpadneo --kernels "$KERNEL_VERSION" --force && \
-akmods --akmod nvidia-open --kernels "$KERNEL_VERSION" --force
+akmods --kernels "$KERNEL_VERSION" --force
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
@@ -31,7 +30,7 @@ RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY nvidia-open/dnf* dnf* ./
 COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-COPY --from=builder /var/cache/akmods/nvidia-open/kmod-nvidia-open*.rpm ./
+COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
@@ -40,8 +39,7 @@ dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
-RUN rpm -iv --nodeps ./kmod-nvidia-open*.rpm && \
-dnf -y install xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
+RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo-*.rpm
 RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 COPY nvidia-open/2-nvidia-args.toml 1-kernel-cmdline-args.toml nvidia-open/nvidia-power-management.conf ./
