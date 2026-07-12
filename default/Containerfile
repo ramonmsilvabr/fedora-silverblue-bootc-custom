@@ -31,7 +31,7 @@ RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
-RUN dnf -y install ./kmod-xpadneo-*.rpm
+RUN dnf -y install ./kmod-xpadneo*.rpm
 RUN tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
 COPY 1-kernel-cmdline-args.toml ./
 RUN mv -v 1-kernel-cmdline-args.toml /usr/lib/bootc/kargs.d/1-kernel-cmdline-args.toml
