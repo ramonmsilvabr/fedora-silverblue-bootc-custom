@@ -10,7 +10,6 @@ fastfetch
 gnome-tweaks
 gnome-firmware
 rclone
-PackageKit-bootc
 clamav
 clamav-freshclam
 clamd
