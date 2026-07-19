@@ -1,19 +1,25 @@
 # Imagem do Fedora Silverblue OCI com modificações
 
 Essa imagem pode ser utilizada se desejar uma instalação mais limpa do Fedora sem ter que recorrer a sistemas que trazem várias modificações.
+
 Duas edições principais: 
+
 * `fedora-silverblue-bootc-custom` que **apenas** inclui os drivers Open Source; 
 * `fedora-silverblue-bootc-custom-nvidia-open` que inclui os drivers proprietários da NVIDIA.
+
 Canais de atualização:
 |Canal|Versão atual|Recorrência de build|
 |---|---|---|
 |latest|44|Diária|
 |beta|45|Ocasional|
 |old|43|Ocasional|
+
 * Drivers fora da árvore inclusos:
     * xpadneo: Xbox Advanced Linux Driver; Repositório terra.
     * nvidia (na edição nvidia-open): NVIDIA Open Kernel Modules; Repositório rpmfusion.
+
 Ambiente Desktop/Compositor Wayland: GNOME Shell/Mutter
+
 Imagem base: Fedora Silverblue bootc
 
 # Buildar localmente
