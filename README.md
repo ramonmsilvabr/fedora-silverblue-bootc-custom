@@ -15,7 +15,7 @@ Canais de atualização:
 |old|43|Ocasional|
 
 * Drivers fora da árvore inclusos:
-    * xpadneo: Xbox Advanced Linux Driver; Repositório terra.
+    * xpadneo: Xbox Controller Advanced Linux Driver; Repositório terra.
     * nvidia (na edição nvidia-open): NVIDIA Open Kernel Modules; Repositório rpmfusion.
 
 Ambiente Desktop/Compositor Wayland: GNOME Shell/Mutter
