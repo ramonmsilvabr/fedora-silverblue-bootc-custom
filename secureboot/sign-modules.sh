@@ -3,8 +3,8 @@
 # Pega versão do pacote de kernel do Fedora
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
 # Configurações - Altere os caminhos para onde estão seus arquivos
-PRIV_KEY="akmods.priv"
-DER_CERT="akmods.der"
+PRIV_KEY="./secureboot/MOK.priv"
+DER_CERT="./secureboot/MOK.der"
 
 chmod 444 $DER_CERT
 chmod 400 $PRIV_KEY
