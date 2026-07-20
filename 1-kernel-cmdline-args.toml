@@ -1,4 +1,0 @@
-kargs = [
-  "vconsole.keymap=br",
-  "intel_iommu=on"
-]
