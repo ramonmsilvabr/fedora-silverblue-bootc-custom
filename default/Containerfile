@@ -26,13 +26,15 @@ ARG SECUREBOOT_IGNORE=false
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY default/dnf* dnf* ./
-COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+# Pacotes
 RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
-dnf upgrade -y --refresh
+dnf upgrade -y --refresh && \
+tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
+# Módulos
+COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 RUN dnf -y install ./kmod-xpadneo*.rpm
-RUN tr '\n' ' ' < dnf-install-packages-default | xargs dnf install -y
 COPY secureboot/ ./secureboot/
 RUN --mount=type=bind,source=.,target=/context \
 /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
