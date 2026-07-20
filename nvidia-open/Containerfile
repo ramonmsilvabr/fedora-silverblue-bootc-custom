@@ -40,7 +40,8 @@ tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Módulos
-COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm -from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm nvidia-open/1-nvidia-args.toml - ./
+COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
+COPY nvidia-open/1-nvidia-args.toml ./
 RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo-*.rpm && \
 mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
