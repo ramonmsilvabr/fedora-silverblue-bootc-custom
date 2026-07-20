@@ -29,8 +29,7 @@ ARG SECUREBOOT_IGNORE=false
 RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY nvidia-open/dnf* dnf* ./
-COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
+# Pacotes
 RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
@@ -39,11 +38,14 @@ dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh
+# Módulos
+COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo-*.rpm
 RUN tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 COPY nvidia-open/1-nvidia-args.toml ./
-RUN mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/2-nvidia-args.toml
+RUN mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
 COPY secureboot/ ./secureboot/
 RUN --mount=type=bind,source=.,target=/context \
 /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
