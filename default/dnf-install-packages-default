@@ -12,6 +12,7 @@ gnome-firmware
 rclone
 bootc-gtk
 nautilus-gsconnect
+gnome-monitor-config
 clamav
 clamav-freshclam
 clamd
