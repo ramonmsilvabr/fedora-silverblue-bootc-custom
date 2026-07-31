@@ -10,7 +10,7 @@ Duas edições principais:
 Canais de atualização:
 |Canal|Versão atual|Recorrência de build|
 |---|---|---|
-|latest|44|Diária|
+|latest|44|Semanal (Segunda-feira)|
 |beta|45|Ocasional|
 |old|43|Ocasional|
 
