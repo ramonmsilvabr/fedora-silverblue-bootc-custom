@@ -2,7 +2,7 @@ name: nvidia-open build
 
 on:
   schedule:
-    - cron: '0 6 * * 1' # Constrói as 6:00 da segunda
+    - cron: '0 6 * * 0' # Constrói as 6:00 da segunda
   workflow_dispatch:
     inputs:
       fedora_version:
