@@ -10,9 +10,8 @@ fastfetch
 gnome-tweaks
 gnome-firmware
 rclone
-bootc-gtk
 nautilus-gsconnect
-gnome-monitor-config
+tuned-utils
 clamav
 clamav-freshclam
 clamd
