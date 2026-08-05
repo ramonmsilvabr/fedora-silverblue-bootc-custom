@@ -63,16 +63,37 @@ jobs:
             mkdir -p .anchor
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/MOK.priv
             
-      - name: Build e Push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./nvidia-open/Containerfile
-          push: true
-          build-args: |
-            FEDORA_VERSION=${{ env.SELECTED_VERSION }}
-          tags: |
+      - name: Build da imagem inicial (como root)
+        run: |
+          sudo podman build \
+            --skip-unused-stages=false \
+            --security-opt label=disable \
+            -t "localhost/bootc-raw:latest" \
+            -f ./nvidia-open/Containerfile \
+            -v "$(pwd):/run/src" \
+            --build-arg FEDORA_VERSION=${{ env.SELECTED_VERSION }} \
+            .
+
+      - name: Rechunk via bootc-base-imagectl 
+        run: |
+          sudo podman run --rm --privileged \
+            -v /var/lib/containers:/var/lib/containers \
+            quay.io/fedora/fedora-bootc:44 \
+            /usr/libexec/bootc-base-imagectl rechunk \
+            localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.versionanddate }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.short_sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.channel }}
+
+      - name: Push da tag principal otimizada
+        run: sudo podman push "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}"
+
+      - name: Aplicar demais tags e push
+        run: |
+          REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
+
+          for TAG in "${{ steps.meta.outputs.versionanddate }}" \
+               "${{ steps.meta.outputs.short_sha }}" \
+               "${{ steps.meta.outputs.channel }}"; do
+            sudo podman tag "$SOURCE" "${REGISTRY_IMAGE}:${TAG}"
+            sudo podman push "${REGISTRY_IMAGE}:${TAG}"
+          done
