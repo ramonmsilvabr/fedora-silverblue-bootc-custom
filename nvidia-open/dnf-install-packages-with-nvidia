@@ -1,4 +1,3 @@
-@virtualization
 distrobox
 libgda
 libgda-sqlite
@@ -11,7 +10,6 @@ gnome-tweaks
 gnome-firmware
 rclone
 nautilus-gsconnect
-tuned-utils
 clamav
 clamav-freshclam
 clamd

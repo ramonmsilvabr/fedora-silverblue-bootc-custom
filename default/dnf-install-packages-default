@@ -1,11 +1,8 @@
-@virtualization
 distrobox
 libgda
 libgda-sqlite
 btrfs-assistant
 podman-compose
-nvtop
-btop
 fastfetch
 gnome-tweaks
 gnome-firmware
