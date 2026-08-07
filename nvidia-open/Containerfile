@@ -33,7 +33,6 @@ COPY nvidia-open/dnf* dnf* ./
 RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
-dnf config-manager addrepo -y --from-repofile=https://negativo17.org/repos/fedora-uld.repo && \
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
