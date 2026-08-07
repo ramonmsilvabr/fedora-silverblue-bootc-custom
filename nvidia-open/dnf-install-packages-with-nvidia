@@ -3,13 +3,8 @@ libgda
 libgda-sqlite
 btrfs-assistant
 podman-compose
-nvtop
-btop
 fastfetch
-gnome-tweaks
-gnome-firmware
 rclone
-nautilus-gsconnect
 clamav
 clamav-freshclam
 clamd
@@ -19,4 +14,3 @@ nvidia-container-toolkit
 nvidia-container-toolkit-base
 libnvidia-container-tools
 libnvidia-container1
-uld
