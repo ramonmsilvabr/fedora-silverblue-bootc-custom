@@ -10,12 +10,11 @@ Duas edições principais:
 Canais de atualização:
 |Canal|Versão atual|Recorrência de build|
 |---|---|---|
-|latest|44|Semanal (Segunda-feira)|
+|latest|44|Diária|
 |beta|45|Ocasional|
 |old|43|Ocasional|
 
 * Drivers fora da árvore inclusos:
-    * xpadneo: Xbox Controller Advanced Linux Driver; Repositório terra.
     * nvidia (na edição nvidia-open): NVIDIA Open Kernel Modules; Repositório rpmfusion.
 
 Ambiente Desktop/Compositor Wayland: GNOME Shell/Mutter
