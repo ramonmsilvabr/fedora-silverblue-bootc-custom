@@ -1,6 +1,5 @@
 # Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
 ARG FEDORA_VERSION=44
-
 # Estágio de construção de módulos (pacotes kmod)
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 RUN dnf upgrade -y 'kernel*' --refresh && \
@@ -13,7 +12,6 @@ akmods --kernels "$KERNEL_VERSION" --force
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
-
 # Constrói imagem especificada do Fedora Silverblue em bootc
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
