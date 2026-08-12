@@ -5,10 +5,6 @@ btrfs-assistant
 podman-compose
 fastfetch
 rclone
-clamav
-clamav-freshclam
-clamd
-nautilus-python
 libva-nvidia-driver
 nvidia-container-toolkit
 nvidia-container-toolkit-base
