@@ -61,10 +61,14 @@ jobs:
             mkdir -p .anchor
             echo -n "$PRIVATEKEY_BASE64" | base64 --decode > .anchor/MOK.priv
             
-      - name: Build da imagem inicial (como root)
+      - name: Limpeza e Build da imagem inicial como root
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"\
+          sudo podman system prune -a --force
           sudo podman build \
-            --no-cache \
             --skip-unused-stages=false \
             --security-opt label=disable \
             -t "localhost/bootc-raw:latest" \
