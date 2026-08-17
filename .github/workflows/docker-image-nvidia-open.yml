@@ -69,7 +69,6 @@ jobs:
       - name: Build da imagem inicial (como root)
         run: |
           sudo podman build \
-            --no-cache \
             --skip-unused-stages=false \
             --security-opt label=disable \
             -t "localhost/bootc-raw:latest" \
