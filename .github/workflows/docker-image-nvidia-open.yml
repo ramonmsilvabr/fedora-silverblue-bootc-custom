@@ -77,7 +77,7 @@ jobs:
             --build-arg FEDORA_VERSION=${{ env.SELECTED_VERSION }} \
             .
 
-      - name: Rechunk via bootc-base-imagectl 
+      - name: Rechunk via bootc-base-imagectl e remoção
         run: |
           sudo podman run --rm --privileged \
             -v /var/lib/containers:/var/lib/containers \
@@ -85,8 +85,9 @@ jobs:
             /usr/libexec/bootc-base-imagectl rechunk \
             localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
+          sudo podman rmi localhost/bootc-raw:latest
 
-      - name: Baixar, aplicar tags e fazer push da imagem
+      - name: Tags e Push da imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
