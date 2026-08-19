@@ -100,8 +100,7 @@ jobs:
       - name: Push de todas as tags unificadas
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          
-          sudo podman push "${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
+  
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}"; do
