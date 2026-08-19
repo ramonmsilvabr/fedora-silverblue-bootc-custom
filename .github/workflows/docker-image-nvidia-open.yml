@@ -86,17 +86,24 @@ jobs:
             localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
 
-      - name: Push da tag principal otimizada
-        run: sudo podman push "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}"
-
-      - name: Aplicar demais tags e push
+      - name: Aplicar tags na imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
 
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
-               "${{ steps.meta.outputs.short_sha }}" \
-               "${{ steps.meta.outputs.channel }}"; do
+                     "${{ steps.meta.outputs.short_sha }}" \
+                     "${{ steps.meta.outputs.channel }}"; do
             sudo podman tag "$SOURCE" "${REGISTRY_IMAGE}:${TAG}"
+          done
+
+      - name: Push de todas as tags unificadas
+        run: |
+          REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          
+          sudo podman push "${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
+          for TAG in "${{ steps.meta.outputs.versionanddate }}" \
+                     "${{ steps.meta.outputs.short_sha }}" \
+                     "${{ steps.meta.outputs.channel }}"; do
             sudo podman push "${REGISTRY_IMAGE}:${TAG}"
           done
