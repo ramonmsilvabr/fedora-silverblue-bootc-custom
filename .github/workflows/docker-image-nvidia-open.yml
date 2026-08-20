@@ -92,18 +92,15 @@ jobs:
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           # Reference the image tag created in the rechunk step
           SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
-
+          sudo podman push "$SOURCE"
           # Tag and push directly from local storage
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}" \
                      "${{ github.sha }}"; do
-            
-            # Skip empty tag outputs if any meta output is unconfigured
             [ -z "$TAG" ] && continue
-            
-            TARGET="${REGISTRY_IMAGE}:${TAG}"
-            sudo podman tag "$SOURCE" "$TARGET"
-            sudo podman push "$TARGET"
+            sudo skopeo copy \
+              containers-storage:${SOURCE} \
+              docker://${REGISTRY_IMAGE}:${TAG}
           done
   
