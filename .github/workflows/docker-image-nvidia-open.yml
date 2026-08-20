@@ -90,16 +90,20 @@ jobs:
       - name: Tags e Push da imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          SOURCE="${REGISTRY_IMAGE}:${{ github.sha }}"
+          # Reference the image tag created in the rechunk step
+          SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
 
-          sudo podman pull "$SOURCE"
-
-          # 2. Aplica as tags e faz o push no mesmo loop
+          # Tag and push directly from local storage
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
-                     "${{ steps.meta.outputs.channel }}"; do
-                     
+                     "${{ steps.meta.outputs.channel }}" \
+                     "${{ github.sha }}"; do
+            
+            # Skip empty tag outputs if any meta output is unconfigured
+            [ -z "$TAG" ] && continue
+            
             TARGET="${REGISTRY_IMAGE}:${TAG}"
             sudo podman tag "$SOURCE" "$TARGET"
             sudo podman push "$TARGET"
           done
+  
