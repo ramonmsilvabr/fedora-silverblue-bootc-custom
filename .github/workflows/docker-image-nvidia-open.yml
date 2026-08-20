@@ -101,7 +101,7 @@ jobs:
                      "${{ github.sha }}"; do
             [ -z "$TAG" ] && continue
             sudo skopeo copy \
-              docker://${SOURCE} \
+              containers-storage:${SOURCE} \
               docker://${REGISTRY_IMAGE}:${TAG}
           done
   
