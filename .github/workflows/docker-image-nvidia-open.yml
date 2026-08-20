@@ -85,23 +85,51 @@ jobs:
             /usr/libexec/bootc-base-imagectl rechunk \
             localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
-          sudo podman rmi localhost/bootc-raw:latest
+          sudo podman rmi localhost/bootc-raw:latestYAML
+      - name: Tags e Push da imagem
+        run: |
+          REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          PRIMARY_TAG="${{ env.SELECTED_VERSION }}"
+          PRIMARY_IMAGE="${REGISTRY_IMAGE}:${PRIMARY_TAG}"
+
+          # 1. Envia do storage local para o GHCR UMA ÚNICA VEZ (gera o Digest definitivo)
+          sudo skopeo copy \
+            containers-storage:${PRIMARY_IMAGE} \
+            docker://${PRIMARY_IMAGE}
+
+          # 2. Clona as demais tags direto no GHCR (Server-Side: instantâneo e mesmo Digest)
+          for TAG in "${{ steps.meta.outputs.versionanddate }}" \
+                     "${{ steps.meta.outputs.short_sha }}" \
+                     "${{ steps.meta.outputs.channel }}" \
+                     "${{ github.sha }}"; do
+            
+            # Pula se a tag estiver vazia ou for igual à tag principal já enviada
+            [ -z "$TAG" ] || [ "$TAG" = "$PRIMARY_TAG" ] && continue
+            
+            sudo skopeo copy \
+              docker://${PRIMARY_IMAGE} \
+              docker://${REGISTRY_IMAGE}:${TAG}
+          done
 
       - name: Tags e Push da imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          # Reference the image tag created in the rechunk step
-          SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
+          PRIMARY_TAG="${{ env.SELECTED_VERSION }}"
+          PRIMARY_IMAGE="${REGISTRY_IMAGE}:${PRIMARY_TAG}"
 
-          # Tag and push directly from local storage
-          for TAG in "${{ env.SELECTED_VERSION }}" \
-                     "${{ steps.meta.outputs.versionanddate }}" \
+          sudo skopeo copy \
+            containers-storage:${PRIMARY_IMAGE} \
+            docker://${PRIMARY_IMAGE}
+
+          for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}" \
                      "${{ github.sha }}"; do
-            [ -z "$TAG" ] && continue
+            
+            [ -z "$TAG" ] || [ "$TAG" = "$PRIMARY_TAG" ] && continue
+            
             sudo skopeo copy \
-              containers-storage:${SOURCE} \
+              docker://${PRIMARY_IMAGE} \
               docker://${REGISTRY_IMAGE}:${TAG}
           done
   
