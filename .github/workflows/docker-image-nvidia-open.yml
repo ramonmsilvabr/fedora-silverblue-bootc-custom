@@ -90,7 +90,7 @@ jobs:
       - name: Tags e Push da imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          SOURCE="${REGISTRY_IMAGE}:${{ env.SELECTED_VERSION }}"
+          SOURCE="${REGISTRY_IMAGE}:${{ github.sha }}"
 
           sudo podman pull "$SOURCE"
 
