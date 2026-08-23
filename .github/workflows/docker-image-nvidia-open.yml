@@ -56,11 +56,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
             -u "${{ github.actor }}" --password-stdin "${{ env.REGISTRY }}"
-      
-      - name: Clean Podman containers storage
-        run: |
-          sudo podman system prune --all --force
-          sudo rm -rf /var/lib/containers/storage/overlay-containers
 
       - name: Assinatura  dos módulos  de kernel
         env:
