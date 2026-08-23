@@ -38,6 +38,8 @@ jobs:
           DATE=$(TZ='America/Sao_Paulo' date +'%Y%m%d-%H%M')
           VERSIONANDDATE="${VERSION}-${DATE}"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          KERNEL_VERSION=$(sudo podman run quay.io/fedora/fedora-bootc:${VERSION} bash -c 'dnf upgrade -y "kernel*" >/dev/null && \
+            rpm -q kernel-core --queryformat "%{VERSION}-%{RELEASE}.%{ARCH}"')
           if [ "${{ env.SELECTED_VERSION }}" -gt "${{ env.DEFAULT_VERSION }}" ]; then
             echo "channel=beta" >> $GITHUB_OUTPUT
           elif [ "${{ env.SELECTED_VERSION }}" -eq "${{ env.DEFAULT_VERSION }}" ]; then
@@ -48,16 +50,12 @@ jobs:
           echo "version=${VERSION}"     >> $GITHUB_OUTPUT
           echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
           echo "versionanddate=${VERSIONANDDATE}"     >> $GITHUB_OUTPUT
-          
+          echo "kernel_version=$KERNEL_VERSION" >> $GITHUB_OUTPUT
+      
       - name: Login no GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login \
             -u "${{ github.actor }}" --password-stdin "${{ env.REGISTRY }}"
-      
-      - name: Clean Podman containers storage
-        run: |
-          sudo podman system prune --all --force
-          sudo rm -rf /var/lib/containers/storage/overlay-containers
 
       - name: Assinatura  dos módulos  de kernel
         env:
@@ -100,7 +98,8 @@ jobs:
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}" \
-                     "${{ github.sha }}"; do
+                     "${{ github.sha }}" \
+                     "${{ steps.meta.outputs.kernel_version }}"; do
             
             [ -z "$TAG" ] || [ "$TAG" = "$PRIMARY_TAG" ] && continue
             
@@ -108,4 +107,3 @@ jobs:
               docker://${PRIMARY_IMAGE} \
               docker://${REGISTRY_IMAGE}:${TAG}
           done
-  
