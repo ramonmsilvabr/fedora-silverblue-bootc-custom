@@ -8,11 +8,12 @@ Canais de atualização:
 |Canal|Versão atual|Recorrência de build|
 |---|---|---|
 |latest|44|Diária|
-|beta|45|Ocasional|
+|beta|45|Ainda não lançado|
 |old|43|Ocasional|
 
 * Drivers fora da árvore inclusos:
-    * nvidia (na edição nvidia-open): NVIDIA Open Kernel Modules; Repositório rpmfusion.
+    * nvidia: NVIDIA Open Kernel Modules; Repositório rpmfusion.
+    * hid_xpadneo: Advanced Linux Driver for Xbox One Wireless Gamepad
 
 Ambiente Desktop/Compositor Wayland: GNOME Shell/Mutter
 
