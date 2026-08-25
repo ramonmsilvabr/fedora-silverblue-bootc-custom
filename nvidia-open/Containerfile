@@ -7,8 +7,8 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y 'dnf5-command(config-manager)' && \
 dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
-dnf config-manager addrepo https://terra.fyralabs.com/terra.repo && \
-dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda akmod-xpadneo && \
+dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
+dnf install -y akmod-nvidia akmod-xpadneo && \
 akmods --kernels "$KERNEL_VERSION" --force
 
 # Puxa argumento de cima
@@ -26,8 +26,8 @@ RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY nvidia-open/dnf* dnf* ./
 # Pacotes
-RUN dnf install -y fedora-workstation-repositories && \
-dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
+RUN dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
+dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
