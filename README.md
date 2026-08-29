@@ -27,7 +27,7 @@ Imagem base: Fedora Silverblue bootc
 # Clonagem do repositório
 git clone https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom.git
 cd fedora-silverblue-bootc-custom
-sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom-nvidia-open . -f nvidia-open/Containerfile
+sudo podman build --build-arg SECUREBOOT_IGNORE=true -t fedora-silverblue-bootc-custom-nvidia-open . -f builds/nvidia-open/Containerfile
 ```
 
 * Se precisar da ISO para fazer uma instalação limpa:
@@ -40,7 +40,7 @@ sudo podman run \
     --pull=newer \
     --security-opt label=type:unconfined_t \
     -v ./output:/output \
-    -v ./config.toml:/config.toml:ro \
+    -v ./iso/config.toml:/config.toml:ro \
     -v /var/lib/containers/storage:/var/lib/containers/storage \
     quay.io/centos-bootc/bootc-image-builder:latest \
     --type anaconda-iso \
@@ -53,7 +53,7 @@ sudo podman run \
 
     ```
     git clone https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom.git
-    cd fedora-silverblue-bootc-custom/secureboot
+    cd fedora-silverblue-bootc-custom/scripts/secureboot
     sudo mokutil -i MOK.der
     #  Importe a chave no MOK com uma senha de sua preferência, digite-a duas vezes
     ```
