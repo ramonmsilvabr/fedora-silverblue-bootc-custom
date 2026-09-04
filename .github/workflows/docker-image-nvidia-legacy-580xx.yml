@@ -1,4 +1,4 @@
-name: nvidia-open build
+name: nvidia-legacy-580xx build
 
 on:
   schedule:
