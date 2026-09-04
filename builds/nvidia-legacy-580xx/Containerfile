@@ -1,0 +1,61 @@
+# Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
+ARG FEDORA_VERSION=44
+# Estágio de construção de módulos (pacotes kmod)
+FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
+RUN dnf upgrade -y 'kernel*' --refresh && \
+KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
+dnf install -y \
+https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
+dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
+sh -c 'echo "%_without_kmod_nvidia_detect 1" > /etc/rpm/macros.nvidia-kmod' && \
+dnf install -y akmod-nvidia-580xx akmod-xpadneo && \
+akmods --kernels "$KERNEL_VERSION" --force
+
+# Puxa argumento de cima
+ARG FEDORA_VERSION
+# Constrói imagem especificada do Fedora Silverblue em bootc
+FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
+# Adiciona labels do ostree
+LABEL ostree.bootable="true"
+LABEL containers.bootc="1"
+WORKDIR /tmp/build-context
+# Flag opcional para ignorar Secure Boot
+ARG SECUREBOOT_IGNORE=false
+# Copia lista de pacotes e módulos compilados
+COPY packages/dnf* ./
+# Pacotes
+RUN dnf install -y \
+https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
+dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
+dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
+sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
+tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
+dnf upgrade -y --refresh && \
+tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
+# Módulos
+COPY --from=builder /var/cache/akmods/nvidia-580xx/kmod-nvidia*.rpm /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+COPY builds/nvidia-open/1-nvidia-args.toml ./
+RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-580xx-cuda --setopt=install_weak_deps=False && \
+dnf -y install ./kmod-xpadneo*.rpm xpadneo --setopt=install_weak_deps=False && \
+mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
+COPY scripts/secureboot/ ./secureboot/
+RUN --mount=type=bind,source=.,target=/context \
+/bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
+        set -e; \
+        mkdir -p ./.anchor; \
+        cp -r /context/.anchor/* ./secureboot/; \
+        bash ./secureboot/sign-modules.sh; \
+fi'
+# Fase de limpeza
+RUN rm -rvf /tmp/build-context && \
+dnf clean all && \
+rm -rfv /var/cache/* \
+        /var/lib/* \
+        /var/log/* \
+        /var/tmp/* 
+# Volta pra raiz
+WORKDIR /
+# Verificar por erros na imagem 
+RUN bootc container lint
