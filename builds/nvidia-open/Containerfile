@@ -21,8 +21,6 @@ LABEL containers.bootc="1"
 WORKDIR /tmp/build-context
 # Flag opcional para ignorar Secure Boot
 ARG SECUREBOOT_IGNORE=false
-# Cria diretórios home
-RUN mkdir -p /var/roothome /data /var/home
 # Copia lista de pacotes e módulos compilados
 COPY packages/dnf* ./
 # Pacotes
