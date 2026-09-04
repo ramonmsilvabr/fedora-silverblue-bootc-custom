@@ -4,11 +4,12 @@ ARG FEDORA_VERSION=44
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 RUN dnf upgrade -y 'kernel*' --refresh && \
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
-dnf install -y 'dnf5-command(config-manager)' && \
-dnf install -y fedora-workstation-repositories && \
-dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
+dnf install -y \
+https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
 dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
-dnf install -y akmod-nvidia akmod-xpadneo && \
+sh -c 'echo "%_without_kmod_nvidia_detect 1" > /etc/rpm/macros.nvidia-kmod' && \
+dnf install -y akmod-nvidia-580xx akmod-xpadneo && \
 akmods --kernels "$KERNEL_VERSION" --force
 
 # Puxa argumento de cima
@@ -24,7 +25,9 @@ ARG SECUREBOOT_IGNORE=false
 # Copia lista de pacotes e módulos compilados
 COPY packages/dnf* ./
 # Pacotes
-RUN dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
+RUN dnf install -y \
+https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
 dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
@@ -32,9 +35,9 @@ tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Módulos
-COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+COPY --from=builder /var/cache/akmods/nvidia-580xx/kmod-nvidia*.rpm /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
 COPY builds/nvidia-open/1-nvidia-args.toml ./
-RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
+RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-580xx-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo*.rpm xpadneo --setopt=install_weak_deps=False && \
 mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
 COPY scripts/secureboot/ ./secureboot/
