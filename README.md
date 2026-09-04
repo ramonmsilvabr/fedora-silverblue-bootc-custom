@@ -1,8 +1,10 @@
 # Imagem do Fedora Silverblue OCI com modificações
 
 Essa imagem pode ser utilizada se desejar uma instalação mais limpa do Fedora sem ter que recorrer a sistemas que trazem várias modificações.
- 
-* `fedora-silverblue-bootc-custom-nvidia-open` inclui os drivers proprietários da NVIDIA.
+As variantes se diferenciam na presença de drivers da NVIDIA fora da árvore na imagem.
+
+* `fedora-silverblue-bootc-custom-nvidia-open` que inclui a stack proprietária de NVIDIA para GPUs da série 16xx e acima (Turing+).
+* `fedora-silverblue-bootc-custom-nvidia-legacy-580xx` que inclui a stack proprietária da NVIDIA para GPUs da série 10xx, 9xx e 8xx (Maxwell, Pascal e Volta)
 
 Canais de atualização:
 |Canal|Versão atual|Recorrência de build|
@@ -12,8 +14,8 @@ Canais de atualização:
 |old|43|Ocasional|
 
 * Drivers fora da árvore inclusos:
-    * nvidia: NVIDIA Open Kernel Modules; Repositório rpmfusion.
-    * hid_xpadneo: Advanced Linux Driver for Xbox One Wireless Gamepad
+    * `nvidia`, `nvidia-drm`, `nvidia-uvm`, `nvidia-modeset`: Drivers da NVIDIA
+    * `hid_xpadneo`: Driver para controle Xbox One via bluetooth.
 
 Ambiente Desktop/Compositor Wayland: GNOME Shell/Mutter
 
@@ -47,10 +49,10 @@ sudo podman run \
     --rootfs btrfs \
     localhost/fedora-silverblue-bootc-custom-nvidia-open
 ```
+
 # Uso da imagem no registro do Github Actions
 
 * Se você usa Secure Boot, importe o certificado antes de instalar:
-
     ```
     git clone https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom.git
     cd fedora-silverblue-bootc-custom/scripts/secureboot
@@ -61,9 +63,7 @@ sudo podman run \
 * Separo em três canais, o canal **latest**  possui a última versão estável do Fedora, o **beta** possui a próxima versão e o **old** possui a versão que está ainda sendo suportada sem ser a mais atual. Se você preferir, você pode escolher uma versão específica por número: ex. 44, 45 e 43.
 
 * Se você quer gerar uma ISO, utilize o bootc-image-builder numa distro do Fedora ou derivados (CentOS e RHEL).
-
     * Imagem que inclui o driver proprietário da NVIDIA:
-
     ```
     sudo podman run \
         --rm \
