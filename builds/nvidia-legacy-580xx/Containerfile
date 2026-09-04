@@ -36,7 +36,7 @@ dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Módulos
 COPY --from=builder /var/cache/akmods/nvidia-580xx/kmod-nvidia*.rpm /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-COPY builds/nvidia-open/1-nvidia-args.toml ./
+COPY builds/nvidia-legacy-580xx/1-nvidia-args.toml ./
 RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-580xx-cuda --setopt=install_weak_deps=False && \
 dnf -y install ./kmod-xpadneo*.rpm xpadneo --setopt=install_weak_deps=False && \
 mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
