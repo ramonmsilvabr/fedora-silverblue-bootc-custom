@@ -11,7 +11,7 @@ on:
         required: false
 
 env:
-  IMAGE_NAME: fedora-silverblue-bootc-custom-nvidia-open
+  IMAGE_NAME: fedora-silverblue-bootc-custom-nvidia-legacy-580xx
   REGISTRY: ghcr.io/${{ github.repository_owner }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -79,7 +79,7 @@ jobs:
         run: |
           sudo podman run --rm --privileged \
             -v /var/lib/containers:/var/lib/containers \
-            quay.io/fedora/fedora-bootc:44 \
+            quay.io/fedora/fedora-bootc:${{ env.SELECTED_VERSION }} \
             /usr/libexec/bootc-base-imagectl rechunk \
             localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
