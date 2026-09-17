@@ -2,11 +2,6 @@
 ARG FEDORA_VERSION=44
 # Estágio de construção de módulos (pacotes kmod)
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
-RUN dnf upgrade -y 'kernel*' --refresh && \
-KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
-dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
-dnf install -y akmod-xpadneo && \
-akmods --kernels "$KERNEL_VERSION" --force
 WORKDIR /var/roothome
 RUN dnf -y install meson git cmake glib2 glib2-devel gnome-software-devel && \
 git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
@@ -27,21 +22,18 @@ ARG SECUREBOOT_IGNORE=false
 # Copia lista de pacotes e módulos compilados
 COPY packages/dnf* ./
 # Pacotes
-RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
-tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
+RUN tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages | xargs dnf install -y
 # Módulos
-COPY --from=builder /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
-RUN dnf -y install ./kmod-xpadneo*.rpm xpadneo --setopt=install_weak_deps=False
-COPY scripts/secureboot/ ./secureboot/
-RUN --mount=type=bind,source=.,target=/context \
-/bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
-        set -e; \
-        mkdir -p ./.anchor; \
-        cp -r /context/.anchor/* ./secureboot/; \
-        bash ./secureboot/sign-modules.sh; \
-fi'
+# COPY scripts/secureboot/ ./secureboot/
+# RUN --mount=type=bind,source=.,target=/context \
+# /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
+#        set -e; \
+#        mkdir -p ./.anchor; \
+#        cp -r /context/.anchor/* ./secureboot/; \
+#        bash ./secureboot/sign-modules.sh; \
+# fi'
 # Plugin do bootc para a gnome-software
 RUN mkdir -p ./gs-bootc
 COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc

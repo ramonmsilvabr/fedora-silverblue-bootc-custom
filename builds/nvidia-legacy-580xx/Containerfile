@@ -7,9 +7,8 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y \
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
-dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 sh -c 'echo "%_without_kmod_nvidia_detect 1" > /etc/rpm/macros.nvidia-kmod' && \
-dnf install -y akmod-nvidia-580xx akmod-xpadneo && \
+dnf install -y akmod-nvidia-580xx && \
 akmods --kernels "$KERNEL_VERSION" --force
 # Build gnome-software-plugin-bootc
 WORKDIR /var/roothome
@@ -35,17 +34,15 @@ COPY packages/dnf* ./
 RUN dnf install -y \
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm && \
-dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf config-manager addrepo -y --from-repofile=https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo && \
 sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem|' /etc/yum.repos.d/nvidia-container-toolkit.repo && \
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
 # Módulos
-COPY --from=builder /var/cache/akmods/nvidia-580xx/kmod-nvidia*.rpm /var/cache/akmods/xpadneo/kmod-xpadneo*.rpm ./
+COPY --from=builder /var/cache/akmods/nvidia-580xx/kmod-nvidia*.rpm ./
 COPY builds/nvidia-legacy-580xx/1-nvidia-args.toml ./
 RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-580xx-cuda --setopt=install_weak_deps=False && \
-dnf -y install ./kmod-xpadneo*.rpm xpadneo --setopt=install_weak_deps=False && \
 mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
 COPY scripts/secureboot/ ./secureboot/
 RUN --mount=type=bind,source=.,target=/context \
