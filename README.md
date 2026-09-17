@@ -35,7 +35,6 @@ Para referência mais atual, as versões são disponibilizadas assim:
 
 Módulos de kernel extras:
 * `nvidia`, `nvidia-drm`, `nvidia-uvm`, `nvidia-modeset`: Drivers da NVIDIA
-* `hid_xpadneo`: Driver para controle Xbox One via bluetooth.
 
 Ambiente Desktop: GNOME Shell 50.x
 
