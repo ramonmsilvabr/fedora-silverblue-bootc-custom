@@ -28,6 +28,7 @@ ARG SECUREBOOT_IGNORE=false
 COPY packages/dnf* ./
 # Pacotes
 RUN dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
+tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages | xargs dnf install -y
 # Módulos
