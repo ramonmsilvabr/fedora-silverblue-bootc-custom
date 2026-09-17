@@ -7,6 +7,12 @@ KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH
 dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release && \
 dnf install -y akmod-xpadneo && \
 akmods --kernels "$KERNEL_VERSION" --force
+WORKDIR /var/roothome
+RUN dnf -y install meson && \
+git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
+cd ./gnome-software-plugin-bootc && \
+meson setup builddir && \
+meson compile -C builddir
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
@@ -35,6 +41,13 @@ RUN --mount=type=bind,source=.,target=/context \
         cp -r /context/.anchor/* ./secureboot/; \
         bash ./secureboot/sign-modules.sh; \
 fi'
+# Plugin do bootc para a gnome-software
+RUN mkdir -p ./gs-bootc
+COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc
+COPY scripts/gnome-software-bootc/* ./
+RUN cp ./gs-bootc/builddir/libgs_plugin_bootc.so /usr/lib64/gnome-software/plugins-23/ && \
+cd ./gs-bootc && \
+bash install-to-image.sh
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \
