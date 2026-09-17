@@ -2,7 +2,7 @@ name: nvidia-open build
 
 on:
   schedule:
-    - cron: '25 9 * * *' 
+    - cron: '35 0 * * *' 
   workflow_dispatch:
     inputs:
       fedora_version:
