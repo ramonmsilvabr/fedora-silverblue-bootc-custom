@@ -28,7 +28,7 @@ Para referência mais atual, as versões são disponibilizadas assim:
 |Canal|Versão atual|Recorrência de build|
 |---|---|---|
 |latest|44|Diária||
-|beta|45|Ainda não lançado|
+|beta|45|Ocasional|
 |old|43|Ocasional|
 
 # Baterias inclusas
