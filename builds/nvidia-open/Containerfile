@@ -1,6 +1,5 @@
-# Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
 ARG FEDORA_VERSION=44
-# Estágio de construção de módulos (pacotes kmod)
+
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 RUN dnf upgrade -y 'kernel*' --refresh && \
 KERNEL_VERSION="$(rpm -q kernel-core --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')" && \
@@ -10,16 +9,12 @@ dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
 dnf install -y akmod-nvidia && \
 akmods --kernels "$KERNEL_VERSION" --force
 
-# Puxa argumento de cima
-ARG FEDORA_VERSION
-# Constrói imagem especificada do Fedora Silverblue em bootc
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 WORKDIR /tmp/build-context
-# Flag opcional para ignorar Secure Boot
-ARG SECUREBOOT_IGNORE=false
+
 # Copia lista de pacotes e módulos compilados
 COPY packages/dnf* ./
 # Pacotes
@@ -29,11 +24,20 @@ sed -i 's|^sslcacert=.*|sslcacert=/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.
 tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages-with-nvidia | xargs dnf install -y
+# Instala plugin pra GS
+RUN mkdir -p ./gs-bootc
+COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc
+COPY scripts/gnome-software-bootc/* ./
+RUN cd ./gs-bootc && \
+cp ./libgs_plugin_bootc.so /usr/lib64/gnome-software/plugins-23/ && \
+bash ../install-to-image.sh
 # Módulos
 COPY --from=builder /var/cache/akmods/nvidia/kmod-nvidia*.rpm ./
 COPY builds/nvidia-open/1-nvidia-args.toml ./
 RUN dnf -y install ./kmod-nvidia*.rpm xorg-x11-drv-nvidia-cuda --setopt=install_weak_deps=False && \
 mv -v 1-nvidia-args.toml /usr/lib/bootc/kargs.d/1-nvidia-args.toml
+# Assinatura Secure Boot
+ARG SECUREBOOT_IGNORE=false
 COPY scripts/secureboot/ ./secureboot/
 RUN --mount=type=bind,source=.,target=/context \
 /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
@@ -41,8 +45,7 @@ RUN --mount=type=bind,source=.,target=/context \
         mkdir -p ./.anchor; \
         cp -r /context/.anchor/* ./secureboot/; \
         bash ./secureboot/sign-modules.sh; \
-fi'
-
+fi
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \
@@ -52,5 +55,13 @@ rm -rfv /var/cache/* \
         /var/tmp/* 
 # Volta pra raiz
 WORKDIR /
+# Adiciona etiquetas
+LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
+LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA"
+LABEL org.opencontainers.image.version="44.3.2"
+LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
+LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
+ARG BUILD_DATE_TIME
+LABEL org.opencontainers.image.revision="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
 # Verificar por erros na imagem 
 RUN bootc container lint

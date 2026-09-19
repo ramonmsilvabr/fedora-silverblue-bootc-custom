@@ -1,28 +1,31 @@
-# Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
 ARG FEDORA_VERSION=44
-# Constrói imagem especificada do Fedora Silverblue em bootc
+
+FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
+WORKDIR /var/roothome
+RUN dnf -y install @c-development @development-tools meson glib2-devel gnome-software-devel && \
+git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
+cd ./gnome-software-plugin-bootc && \
+meson setup builddir && \
+meson compile -C builddir
+
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
 LABEL ostree.bootable="true"
 LABEL containers.bootc="1"
 WORKDIR /tmp/build-context
-# Flag opcional para ignorar Secure Boot
-ARG SECUREBOOT_IGNORE=false
 # Copia lista de pacotes e módulos compilados
 COPY packages/dnf* ./
 # Pacotes
 RUN tr '\n' ' ' < dnf-remove-packages | xargs dnf remove -y && \
 dnf upgrade -y --refresh && \
 tr '\n' ' ' < dnf-install-packages | xargs dnf install -y
-# Módulos
-# COPY scripts/secureboot/ ./secureboot/
-# RUN --mount=type=bind,source=.,target=/context \
-# /bin/bash -c 'if [ "$SECUREBOOT_IGNORE" = "false" ]; then \
-#        set -e; \
-#        mkdir -p ./.anchor; \
-#        cp -r /context/.anchor/* ./secureboot/; \
-#        bash ./secureboot/sign-modules.sh; \
-# fi'
+# Instala plugin pra GS
+RUN mkdir -p ./gs-bootc
+COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc
+COPY scripts/gnome-software-bootc/* ./
+RUN cd ./gs-bootc && \
+cp ./libgs_plugin_bootc.so /usr/lib64/gnome-software/plugins-23/ && \
+bash ../install-to-image.sh
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \
@@ -32,5 +35,14 @@ rm -rfv /var/cache/* \
         /var/tmp/* 
 # Volta pra raiz
 WORKDIR /
+# Adiciona etiquetas
+LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
+LABEL org.opencontainers.image.title="Fedora Silverblue"
+LABEL org.opencontainers.image.version="44.3.2"
+LABEL org.opencontainers.image.description="Custom Fedora Silverblue image"
+LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
+ARG BUILD_DATE
+LABEL org.opencontainers.image.revision="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
+
 # Verificar por erros na imagem 
 RUN bootc container lint
