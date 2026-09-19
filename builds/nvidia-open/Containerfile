@@ -52,7 +52,7 @@ RUN --mount=type=bind,source=.,target=/context \
         mkdir -p ./.anchor; \
         cp -r /context/.anchor/* ./secureboot/; \
         bash ./secureboot/sign-modules.sh; \
-fi
+fi'
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \
@@ -65,7 +65,7 @@ WORKDIR /
 # Adiciona etiquetas
 LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
 LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA"
-LABEL org.opencontainers.image.version="44.3.3"
+LABEL org.opencontainers.image.version="44.3.4"
 LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
 LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
 ARG BUILD_DATE_TIME

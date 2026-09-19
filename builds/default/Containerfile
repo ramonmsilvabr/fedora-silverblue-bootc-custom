@@ -38,7 +38,7 @@ WORKDIR /
 # Adiciona etiquetas
 LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
 LABEL org.opencontainers.image.title="Fedora Silverblue"
-LABEL org.opencontainers.image.version="44.3.3"
+LABEL org.opencontainers.image.version="44.3.4"
 LABEL org.opencontainers.image.description="Custom Fedora Silverblue image"
 LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
 ARG BUILD_DATE_TIME
