@@ -73,6 +73,7 @@ jobs:
             -f ./builds/default/Containerfile \
             -v "$(pwd):/run/src" \
             --build-arg FEDORA_VERSION=${{ env.SELECTED_VERSION }} \
+            --build-arg BUILD_DATE_TIME="$(date -u +'%Y%m%d.%H%M')" \
             .
 
       - name: Rechunk via bootc-base-imagectl e remoção
