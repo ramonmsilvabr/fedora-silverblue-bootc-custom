@@ -67,11 +67,11 @@ rm -rfv /var/cache/* \
 WORKDIR /
 # Adiciona etiquetas
 LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
-LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA 580xx"
-LABEL org.opencontainers.image.version="44.3.4"
-LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with NVIDIA driver 580 included"
-LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
+LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA"
+ARG FEDORA_VERSION 
 ARG BUILD_DATE_TIME
+LABEL org.opencontainers.image.version="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
 LABEL org.opencontainers.image.revision="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
+LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
 # Verificar por erros na imagem 
 RUN bootc container lint

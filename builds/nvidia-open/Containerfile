@@ -65,10 +65,10 @@ WORKDIR /
 # Adiciona etiquetas
 LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
 LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA"
-LABEL org.opencontainers.image.version="44.3.4"
-LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
-LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
+ARG FEDORA_VERSION 
 ARG BUILD_DATE_TIME
+LABEL org.opencontainers.image.version="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
 LABEL org.opencontainers.image.revision="${FEDORA_VERSION}.${BUILD_DATE_TIME}"
+LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
 # Verificar por erros na imagem 
 RUN bootc container lint
