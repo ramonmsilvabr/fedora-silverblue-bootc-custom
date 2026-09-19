@@ -78,12 +78,6 @@ jobs:
       - name: Rechunk via bootc-base-imagectl e remoção
         run: |
           sudo podman run --rm --privileged \
-            --label "containers.bootc=1" \
-            --label "org.opencontainers.image.title='Fedora Silverblue'" \
-            --label "org.opencontainers.image.version='${{ steps.meta.outputs.version }}'" \
-            --label "org.opencontainers.image.revision='${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}'" \
-            --label "org.opencontainers.image.source='https://github.com/${{ github.repository }}'" \
-            --label "org.opencontainers.image.description='Custom Fedora bootc image with NVIDIA Driver (OpenRM)'" \
             -v /var/lib/containers:/var/lib/containers \
             quay.io/fedora/fedora-bootc:${{ env.SELECTED_VERSION }} \
             /usr/libexec/bootc-base-imagectl rechunk \
@@ -91,16 +85,23 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
           sudo podman rmi localhost/bootc-raw:latest
 
-      - name: Tags e Push da imagem
+      - name: Tags, labels e push da imagem
         run: |
           REGISTRY_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           PRIMARY_TAG="${{ env.SELECTED_VERSION }}"
           PRIMARY_IMAGE="${REGISTRY_IMAGE}:${PRIMARY_TAG}"
 
+          # Copy local image to registry and attach labels
           sudo skopeo copy \
+            --add-label "org.opencontainers.image.title=Fedora Silverblue" \
+            --add-label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
+            --add-label "org.opencontainers.image.revision=${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}" \
+            --add-label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --add-label "org.opencontainers.image.description=Custom Fedora bootc image with NVIDIA Driver (OpenRM)" \
             containers-storage:${PRIMARY_IMAGE} \
             docker://${PRIMARY_IMAGE}
 
+          # Copy primary image to remaining tags (labels will be inherited)
           for TAG in "${{ steps.meta.outputs.versionanddate }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}" \
