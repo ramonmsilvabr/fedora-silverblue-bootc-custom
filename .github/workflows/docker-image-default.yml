@@ -85,7 +85,7 @@ jobs:
             --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
             --label "org.opencontainers.image.revision=${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}" \
             --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --label "org.opencontainers.image.description=Custom Fedora bootc image with NVIDIA Driver 580" \
+            --label "org.opencontainers.image.description=Custom Fedora bootc image with only Open Source drivers" \
             localhost/bootc-raw:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SELECTED_VERSION }}
           sudo podman rmi localhost/bootc-raw:latest
