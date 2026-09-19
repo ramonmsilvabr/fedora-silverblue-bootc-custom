@@ -8,6 +8,13 @@ dnf install -y fedora-workstation-repositories && \
 dnf config-manager setopt rpmfusion-nonfree-nvidia-driver.enabled=1 && \
 dnf install -y akmod-nvidia && \
 akmods --kernels "$KERNEL_VERSION" --force
+# Plugin GS
+WORKDIR /var/roothome
+RUN dnf -y install meson git cmake glib2 glib2-devel gnome-software-devel && \
+git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
+cd ./gnome-software-plugin-bootc && \
+meson setup builddir && \
+meson compile -C builddir
 
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
@@ -58,7 +65,7 @@ WORKDIR /
 # Adiciona etiquetas
 LABEL org.opencontainers.image.source="https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom"
 LABEL org.opencontainers.image.title="Fedora Silverblue with NVIDIA"
-LABEL org.opencontainers.image.version="44.3.2"
+LABEL org.opencontainers.image.version="44.3.3"
 LABEL org.opencontainers.image.description="Custom Fedora Silverblue image with latest NVIDIA driver included"
 LABEL org.opencontainers.image.authors="ramon.meireles32@gmail.com"
 ARG BUILD_DATE_TIME
