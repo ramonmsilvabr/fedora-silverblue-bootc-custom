@@ -1,16 +1,5 @@
 # Atribui versão padrão do Fedora para 44, porém pode ser sobrescrita
 ARG FEDORA_VERSION=44
-# Estágio de construção de módulos (pacotes kmod)
-FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
-WORKDIR /var/roothome
-RUN dnf -y install @development-tools @c-development meson glib2-devel gnome-software-devel && \
-git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
-cd ./gnome-software-plugin-bootc && \
-meson setup builddir && \
-meson compile -C builddir
-
-# Puxa argumento de cima
-ARG FEDORA_VERSION
 # Constrói imagem especificada do Fedora Silverblue em bootc
 FROM quay.io/fedora/fedora-silverblue:${FEDORA_VERSION} AS final
 # Adiciona labels do ostree
@@ -34,13 +23,6 @@ tr '\n' ' ' < dnf-install-packages | xargs dnf install -y
 #        cp -r /context/.anchor/* ./secureboot/; \
 #        bash ./secureboot/sign-modules.sh; \
 # fi'
-# Plugin do bootc para a gnome-software
-RUN mkdir -p ./gs-bootc
-COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc
-COPY scripts/gnome-software-bootc/* ./
-RUN cd ./gs-bootc && \
-cp ./libgs_plugin_bootc.so /usr/lib64/gnome-software/plugins-23/ && \
-bash ../install-to-image.sh
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \

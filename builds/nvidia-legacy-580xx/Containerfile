@@ -10,13 +10,6 @@ https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E 
 sh -c 'echo "%_without_kmod_nvidia_detect 1" > /etc/rpm/macros.nvidia-kmod' && \
 dnf install -y akmod-nvidia-580xx && \
 akmods --kernels "$KERNEL_VERSION" --force
-# Build gnome-software-plugin-bootc
-WORKDIR /var/roothome
-RUN dnf -y install meson git cmake glib2 glib2-devel gnome-software-devel && \
-git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
-cd ./gnome-software-plugin-bootc && \
-meson setup builddir && \
-meson compile -C builddir
 
 # Puxa argumento de cima
 ARG FEDORA_VERSION
@@ -52,13 +45,6 @@ RUN --mount=type=bind,source=.,target=/context \
         cp -r /context/.anchor/* ./secureboot/; \
         bash ./secureboot/sign-modules.sh; \
 fi'
-# Plugin do bootc para a gnome-software
-RUN mkdir -p ./gs-bootc
-COPY --from=builder /var/roothome/gnome-software-plugin-bootc/* ./gs-bootc
-COPY scripts/gnome-software-bootc/* ./
-RUN cd ./gs-bootc && \
-cp ./libgs_plugin_bootc.so /usr/lib64/gnome-software/plugins-23/ && \
-bash ../install-to-image.sh
 # Fase de limpeza
 RUN rm -rvf /tmp/build-context && \
 dnf clean all && \
