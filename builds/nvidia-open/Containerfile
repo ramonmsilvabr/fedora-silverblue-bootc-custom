@@ -11,7 +11,7 @@ akmods --kernels "$KERNEL_VERSION" --force
 # Plugin GS
 WORKDIR /var/roothome
 RUN dnf -y install meson git cmake glib2 glib2-devel gnome-software-devel && \
-git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
+git clone https://github.com/ramonmsilvabr/gnome-software-plugin-bootc.git && \
 cd ./gnome-software-plugin-bootc && \
 meson setup builddir && \
 meson compile -C builddir

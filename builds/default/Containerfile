@@ -3,7 +3,7 @@ ARG FEDORA_VERSION=44
 FROM quay.io/fedora/fedora-bootc:${FEDORA_VERSION} AS builder
 WORKDIR /var/roothome
 RUN dnf -y install @c-development @development-tools meson glib2-devel gnome-software-devel && \
-git clone https://github.com/tobexeon/gnome-software-plugin-bootc.git && \
+git clone https://github.com/ramnmsilvabr/gnome-software-plugin-bootc.git && \
 cd ./gnome-software-plugin-bootc && \
 meson setup builddir && \
 meson compile -C builddir
