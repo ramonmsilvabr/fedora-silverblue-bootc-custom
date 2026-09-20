@@ -77,12 +77,6 @@ jobs:
       - name: Rechunk via bootc-base-imagectl e remoção
         run: |
           sudo podman run --rm --privileged \
-            --label "containers.bootc=1" \
-            --label "org.opencontainers.image.title='Fedora Silverblue'" \
-            --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
-            --label "org.opencontainers.image.revision=${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}" \
-            --label "org.opencontainers.image.source='https://github.com/${{ github.repository }}'" \
-            --label "org.opencontainers.image.description='Custom Fedora bootc image with only Open Source drivers'" \
             -v /var/lib/containers:/var/lib/containers \
             quay.io/fedora/fedora-bootc:${{ env.SELECTED_VERSION }} \
             /usr/libexec/bootc-base-imagectl rechunk \
