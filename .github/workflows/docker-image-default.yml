@@ -94,7 +94,7 @@ jobs:
             containers-storage:${PRIMARY_IMAGE} \
             docker://${PRIMARY_IMAGE}
 
-          for TAG in "${{ steps.meta.outputs.versionanddate }}" \
+          for TAG in "${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}" \
                      "${{ steps.meta.outputs.short_sha }}" \
                      "${{ steps.meta.outputs.channel }}" \
                      "${{ github.sha }}" \
