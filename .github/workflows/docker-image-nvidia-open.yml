@@ -93,11 +93,6 @@ jobs:
 
           # Copy local image to registry and attach labels
           sudo skopeo copy \
-            --add-label "org.opencontainers.image.title=Fedora Silverblue" \
-            --add-label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
-            --add-label "org.opencontainers.image.revision=${{ steps.meta.outputs.version }}.${{ steps.meta.outputs.date }}" \
-            --add-label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --add-label "org.opencontainers.image.description=Custom Fedora bootc image with NVIDIA Driver (OpenRM)" \
             containers-storage:${PRIMARY_IMAGE} \
             docker://${PRIMARY_IMAGE}
 
