@@ -7,7 +7,7 @@ A tecnologia usada para fabricação é o [bootc](https://github.com/bootc-dev/b
 
 * `fedora-silverblue-bootc-custom-nvidia-open` que inclui a stack proprietária de NVIDIA para GPUs da série 16xx e acima (Turing+). [📦Containerfile](https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom/blob/main/builds/nvidia-open/Containerfile)
 * `fedora-silverblue-bootc-custom-nvidia-legacy-580xx` que inclui a stack proprietária da NVIDIA para GPUs da série 10xx, 9xx e 8xx (Maxwell, Pascal e Volta). [📦Containerfile](https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom/blob/main/builds/nvidia-legacy-580xx/Containerfile)
-* `fedora-silverblue-bootc-custom` apenas inclui os drivers Open Source. [📦Containerfile](https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom/blob/main/builds/default/Containerfile)
+* (DESCONTINUADO POR HORA)`fedora-silverblue-bootc-custom` apenas inclui os drivers Open Source. [📦Containerfile](https://github.com/ramonmsilvabr/fedora-silverblue-bootc-custom/blob/main/builds/default/Containerfile)
 
 # Requisitos de hardware
 
